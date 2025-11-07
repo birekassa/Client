@@ -18,6 +18,59 @@ function Login() {
     kebeleCounci: { password: "kebeleCounci", role: "kebeleCouncil", path: "/kebele-council" },
   };
 
+  // ✅ Fixed: Safe CSS animation insertion
+  useEffect(() => {
+    const addCSSRules = () => {
+      try {
+        // Method 1: Try to use existing stylesheet
+        const sheets = document.styleSheets;
+        let targetSheet;
+
+        // Find first available stylesheet
+        for (let i = 0; i < sheets.length; i++) {
+          if (sheets[i] && sheets[i].insertRule) {
+            targetSheet = sheets[i];
+            break;
+          }
+        }
+
+        // Method 2: Create new stylesheet if none exist
+        if (!targetSheet) {
+          const style = document.createElement('style');
+          document.head.appendChild(style);
+          targetSheet = style.sheet;
+        }
+
+        // Insert animations
+        if (targetSheet) {
+          targetSheet.insertRule(`
+            @keyframes slideIn {
+              from {
+                opacity: 0;
+                transform: translateY(-20px) scale(0.95);
+              }
+              to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+              }
+            }
+          `, targetSheet.cssRules.length);
+
+          targetSheet.insertRule(`
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          `, targetSheet.cssRules.length);
+        }
+      } catch (error) {
+        console.warn('Could not insert CSS rules:', error);
+      }
+    };
+
+    addCSSRules();
+  }, []);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -355,27 +408,5 @@ const styles = {
     fontSize: "0.7rem"
   }
 };
-
-// Add CSS animations
-const styleSheet = document.styleSheets[0];
-styleSheet.insertRule(`
-  @keyframes slideIn {
-    from {
-      opacity: 0;
-      transform: translateY(-20px) scale(0.95);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
-  }
-`, styleSheet.cssRules.length);
-
-styleSheet.insertRule(`
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-`, styleSheet.cssRules.length);
 
 export default Login;

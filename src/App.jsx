@@ -13,7 +13,7 @@ import Login from "./pages/Login";
 import Blogs from "./pages/Blogs";
 import ContactUs from "./pages/Contact";
 import AboutUs from "./pages/About";
-import Services from "./pages/Services"; // Added Services page
+import Services from "./pages/Services";
 
 // 🧩 Private Pages
 import InternalHome from "./pages/InternalHome";
