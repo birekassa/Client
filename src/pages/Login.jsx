@@ -1,4 +1,3 @@
-// src/pages/Login.js
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -9,7 +8,7 @@ function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  // 🟢 Static user data (temporary)
+  // 🟢 Static user data
   const users = {
     chairman: { password: "chairman", role: "chairman", path: "/chairman" },
     recordofficer: { password: "record", role: "recordOfficer", path: "/record-officer" },
@@ -18,25 +17,6 @@ function Login() {
     socialJustice: { password: "socialJustice", role: "socialJustice", path: "/social-justice" },
     kebeleCounci: { password: "kebeleCounci", role: "kebeleCouncil", path: "/kebele-council" },
   };
-
-  useEffect(() => {
-    // Add CSS animation for spinner safely
-    const spinnerStyle = `
-      @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
-    `;
-
-    const styleElement = document.createElement('style');
-    styleElement.textContent = spinnerStyle;
-    document.head.appendChild(styleElement);
-
-    // Cleanup function
-    return () => {
-      document.head.removeChild(styleElement);
-    };
-  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -61,160 +41,121 @@ function Login() {
     }, 1000);
   };
 
+  const handleClose = () => {
+    navigate("/");
+  };
+
+  // Close on escape key
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        handleClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, []);
+
   return (
-    <div style={styles.container}>
-      <div style={styles.leftPanel}>
-        <div style={styles.imageContainer}>
-          <img 
-            src="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1632&q=80" 
-            alt="Community Administration" 
-            style={styles.backgroundImage}
-          />
-          <div style={styles.imageOverlay}>
-            <div style={styles.imageContent}>
-              <div style={styles.logo}>
-                <div style={styles.logoIcon}>🏛️</div>
-                <h2 style={styles.systemTitle}>Kebele Management System</h2>
-              </div>
-              <h3 style={styles.welcomeText}>Welcome Back</h3>
-              <p style={styles.subtitle}>Streamlined Community Administration</p>
-              <div style={styles.featureList}>
-                <div style={styles.featureItem}>
-                  <span style={styles.checkIcon}>✓</span>
-                  Secure Role-based Access
-                </div>
-                <div style={styles.featureItem}>
-                  <span style={styles.checkIcon}>✓</span>
-                  Real-time Data Management
-                </div>
-                <div style={styles.featureItem}>
-                  <span style={styles.checkIcon}>✓</span>
-                  Comprehensive Dashboard
-                </div>
-                <div style={styles.featureItem}>
-                  <span style={styles.checkIcon}>✓</span>
-                  Multi-department Support
-                </div>
-              </div>
+    <div style={styles.overlay}>
+      <div style={styles.popupContainer}>
+        <div style={styles.popup}>
+          {/* Header */}
+          <div style={styles.header}>
+            <div style={styles.logo}>
+              <div style={styles.logoIcon}>🏛️</div>
+              <h2 style={styles.title}>Kebele Management</h2>
             </div>
-          </div>
-        </div>
-      </div>
-
-      <div style={styles.rightPanel}>
-        <div style={styles.loginForm}>
-          <div style={styles.formHeader}>
-            <h2 style={styles.loginTitle}>Sign In </h2>
-            <p style={styles.loginSubtitle}>Enter your credentials to access the management system</p>
-          </div>
-
-          <form onSubmit={handleSubmit} style={styles.form}>
-            <div style={styles.inputGroup}>
-              <label style={styles.label}>Username</label>
-              <input
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                onFocus={(e) => {
-                  e.target.style.borderColor = "#1e40af";
-                  e.target.style.boxShadow = "0 0 0 3px rgba(30, 64, 175, 0.1)";
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = "#e2e8f0";
-                  e.target.style.boxShadow = "none";
-                }}
-                required
-                style={styles.input}
-                placeholder="Enter your username"
-              />
-            </div>
-
-            <div style={styles.inputGroup}>
-              <label style={styles.label}>Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                onFocus={(e) => {
-                  e.target.style.borderColor = "#1e40af";
-                  e.target.style.boxShadow = "0 0 0 3px rgba(30, 64, 175, 0.1)";
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = "#e2e8f0";
-                  e.target.style.boxShadow = "none";
-                }}
-                required
-                style={styles.input}
-                placeholder="Enter your password"
-              />
-            </div>
-
-            {error && (
-              <div style={styles.errorContainer}>
-                <span style={styles.errorIcon}>⚠️</span>
-                <span style={styles.errorText}>{error}</span>
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={isLoading}
-              style={{
-                ...styles.submitButton,
-                ...(isLoading ? styles.submitButtonLoading : {})
-              }}
-              onMouseOver={(e) => !isLoading && (e.target.style.backgroundColor = "#1e3a8a")}
-              onMouseOut={(e) => !isLoading && (e.target.style.backgroundColor = "#1e40af")}
+            <button 
+              onClick={handleClose}
+              style={styles.closeButton}
+              aria-label="Close login"
             >
-              {isLoading ? (
-                <>
-                  <div style={styles.spinner}></div>
-                  Signing In...
-                </>
-              ) : (
-                "Sign In"
-              )}
+              ×
             </button>
-          </form>
-
-          <div style={styles.testUsers}>
-            <p style={styles.testUsersTitle}>Demo Credentials</p>
-            <div style={styles.usersGrid}>
-              <div style={styles.userCard}>
-                <strong style={styles.userRole}>Chairman</strong>
-                <div style={styles.credential}>user: <code>chairman</code></div>
-                <div style={styles.credential}>pass: <code>chairman</code></div>
-              </div>
-              <div style={styles.userCard}>
-                <strong style={styles.userRole}>Record Officer</strong>
-                <div style={styles.credential}>user: <code>recordofficer</code></div>
-                <div style={styles.credential}>pass: <code>record</code></div>
-              </div>
-              <div style={styles.userCard}>
-                <strong style={styles.userRole}>Administrator</strong>
-                <div style={styles.credential}>user: <code>admin</code></div>
-                <div style={styles.credential}>pass: <code>admin</code></div>
-              </div>
-              <div style={styles.userCard}>
-                <strong style={styles.userRole}>Cashier</strong>
-                <div style={styles.credential}>user: <code>casher</code></div>
-                <div style={styles.credential}>pass: <code>casher</code></div>
-              </div>
-              <div style={styles.userCard}>
-                <strong style={styles.userRole}>Social Justice</strong>
-                <div style={styles.credential}>user: <code>socialJustice</code></div>
-                <div style={styles.credential}>pass: <code>socialJustice</code></div>
-              </div>
-              <div style={styles.userCard}>
-                <strong style={styles.userRole}>Kebele Council</strong>
-                <div style={styles.credential}>user: <code>kebeleCounci</code></div>
-                <div style={styles.credential}>pass: <code>kebeleCounci</code></div>
-              </div>
-            </div>
           </div>
 
-          <div style={styles.footer}>
-            <p style={styles.footerText}>Kebele Management System v1.0</p>
+          {/* Login Form */}
+          <div style={styles.formContainer}>
+            <div style={styles.formHeader}>
+              <h3 style={styles.loginTitle}>Sign In</h3>
+              <p style={styles.loginSubtitle}>Enter your credentials to continue</p>
+            </div>
+
+            <form onSubmit={handleSubmit} style={styles.form}>
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>Username</label>
+                <input
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
+                  style={styles.input}
+                  placeholder="Enter username"
+                  autoFocus
+                />
+              </div>
+
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>Password</label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  style={styles.input}
+                  placeholder="Enter password"
+                />
+              </div>
+
+              {error && (
+                <div style={styles.errorContainer}>
+                  <span style={styles.errorIcon}>⚠️</span>
+                  <span style={styles.errorText}>{error}</span>
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={isLoading}
+                style={{
+                  ...styles.submitButton,
+                  ...(isLoading ? styles.submitButtonLoading : {})
+                }}
+              >
+                {isLoading ? (
+                  <>
+                    <div style={styles.spinner}></div>
+                    Signing In...
+                  </>
+                ) : (
+                  "Sign In"
+                )}
+              </button>
+            </form>
+
+            {/* Demo Credentials */}
+            <div style={styles.demoSection}>
+              <p style={styles.demoTitle}>Demo Credentials</p>
+              <div style={styles.usersGrid}>
+                <div style={styles.userCard}>
+                  <strong style={styles.userRole}>Chairman</strong>
+                  <div style={styles.credential}>user: <code>chairman</code></div>
+                  <div style={styles.credential}>pass: <code>chairman</code></div>
+                </div>
+                <div style={styles.userCard}>
+                  <strong style={styles.userRole}>Admin</strong>
+                  <div style={styles.credential}>user: <code>admin</code></div>
+                  <div style={styles.credential}>pass: <code>admin</code></div>
+                </div>
+                <div style={styles.userCard}>
+                  <strong style={styles.userRole}>Record Officer</strong>
+                  <div style={styles.credential}>user: <code>recordofficer</code></div>
+                  <div style={styles.credential}>pass: <code>record</code></div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -223,140 +164,105 @@ function Login() {
 }
 
 const styles = {
-  container: {
-    display: "flex",
-    height: "100vh",
-    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-    backgroundColor: "#f8fafc"
-  },
-  leftPanel: {
-    flex: 1,
-    position: "relative",
-    overflow: "hidden"
-  },
-  imageContainer: {
-    width: "100%",
-    height: "100%",
-    position: "relative"
-  },
-  backgroundImage: {
-    width: "100%",
-    height: "100%",
-    objectFit: "cover",
-    filter: "brightness(0.9)"
-  },
-  imageOverlay: {
-    position: "absolute",
+  overlay: {
+    position: "fixed",
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    //backgroundColor: "rgba(30, 175, 175, 0.85)",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    padding: "60px"
+    zIndex: 1000,
+    padding: "20px",
+    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
   },
-  imageContent: {
-    textAlign: "center",
-    color: "white",
-    maxWidth: "600px"
+  popupContainer: {
+    width: "100%",
+    maxWidth: "420px",
+    animation: "slideIn 0.3s ease-out"
+  },
+  popup: {
+    backgroundColor: "white",
+    borderRadius: "16px",
+    boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+    overflow: "hidden",
+    border: "1px solid #e2e8f0"
+  },
+  header: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: "24px 24px 0 24px",
+    backgroundColor: "#1e40af",
+    color: "white"
   },
   logo: {
     display: "flex",
     alignItems: "center",
-    justifyContent: "center",
-    marginBottom: "40px"
+    gap: "12px"
   },
   logoIcon: {
-    fontSize: "3rem",
-    marginRight: "15px"
+    fontSize: "2rem"
   },
-  systemTitle: {
-    fontSize: "2rem",
-    fontWeight: "700",
+  title: {
     margin: 0,
-    textShadow: "0 2px 4px rgba(0,0,0,0.3)"
+    fontSize: "1.25rem",
+    fontWeight: "600"
   },
-  welcomeText: {
-    fontSize: "3rem",
-    fontWeight: "700",
-    marginBottom: "20px",
-    textShadow: "0 2px 4px rgba(0,0,0,0.3)"
-  },
-  subtitle: {
-    fontSize: "1.4rem",
-    opacity: "0.95",
-    marginBottom: "50px",
-    fontWeight: "300"
-  },
-  featureList: {
-    textAlign: "left",
-    fontSize: "1.2rem",
-    lineHeight: "1.8"
-  },
-  featureItem: {
-    marginBottom: "20px",
-    opacity: "0.95",
-    display: "flex",
-    alignItems: "center"
-  },
-  checkIcon: {
-    marginRight: "12px",
-    fontSize: "1.4rem",
-    fontWeight: "bold"
-  },
-  rightPanel: {
-    flex: "0 0 50%",
+  closeButton: {
+    background: "none",
+    border: "none",
+    color: "white",
+    fontSize: "2rem",
+    cursor: "pointer",
+    padding: "0",
+    width: "40px",
+    height: "40px",
+    borderRadius: "50%",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    padding: "40px",
-    backgroundColor: "#ffffff"
+    transition: "background-color 0.2s ease"
   },
-  loginForm: {
-    width: "100%",
-    maxWidth: "450px",
-    backgroundColor: "white",
-    padding: "50px 40px",
-    borderRadius: "20px",
-    boxShadow: "0 20px 40px rgba(0, 0, 0, 0.1)",
-    border: "1px solid #f1f5f9"
+  formContainer: {
+    padding: "32px 24px 24px 24px"
   },
   formHeader: {
-    marginBottom: "40px",
-    textAlign: "center"
+    textAlign: "center",
+    marginBottom: "32px"
   },
   loginTitle: {
-    fontSize: "2.2rem",
+    fontSize: "1.5rem",
     fontWeight: "700",
     color: "#1a202c",
-    marginBottom: "12px"
+    margin: "0 0 8px 0"
   },
   loginSubtitle: {
     color: "#64748b",
-    fontSize: "15px",
-    lineHeight: "1.5"
+    fontSize: "0.875rem",
+    margin: 0
   },
   form: {
     width: "100%"
   },
   inputGroup: {
-    marginBottom: "24px"
+    marginBottom: "20px"
   },
   label: {
     display: "block",
-    marginBottom: "8px",
+    marginBottom: "6px",
     fontWeight: "600",
     color: "#374151",
-    fontSize: "14px"
+    fontSize: "0.875rem"
   },
   input: {
     width: "100%",
-    padding: "14px 16px",
+    padding: "12px 16px",
     border: "2px solid #e2e8f0",
-    borderRadius: "10px",
-    fontSize: "16px",
+    borderRadius: "8px",
+    fontSize: "1rem",
     transition: "all 0.2s ease",
     boxSizing: "border-box",
     outline: "none",
@@ -366,59 +272,58 @@ const styles = {
     display: "flex",
     alignItems: "center",
     backgroundColor: "#fef2f2",
-    padding: "14px 16px",
-    borderRadius: "10px",
+    padding: "12px 16px",
+    borderRadius: "8px",
     marginBottom: "20px",
     border: "1px solid #fecaca"
   },
   errorIcon: {
-    marginRight: "10px",
-    fontSize: "16px"
+    marginRight: "8px",
+    fontSize: "1rem"
   },
   errorText: {
     color: "#dc2626",
     fontWeight: "500",
-    fontSize: "14px"
+    fontSize: "0.875rem"
   },
   submitButton: {
     width: "100%",
-    padding: "16px",
+    padding: "14px",
     backgroundColor: "#1e40af",
     color: "white",
     border: "none",
-    borderRadius: "10px",
-    fontSize: "16px",
+    borderRadius: "8px",
+    fontSize: "1rem",
     fontWeight: "600",
     cursor: "pointer",
     transition: "all 0.2s ease",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    marginTop: "10px"
+    gap: "8px"
   },
   submitButtonLoading: {
     opacity: "0.7",
     cursor: "not-allowed"
   },
   spinner: {
-    width: "18px",
-    height: "18px",
+    width: "16px",
+    height: "16px",
     border: "2px solid transparent",
     borderTop: "2px solid white",
     borderRadius: "50%",
-    animation: "spin 1s linear infinite",
-    marginRight: "10px"
+    animation: "spin 1s linear infinite"
   },
-  testUsers: {
-    marginTop: "40px",
-    paddingTop: "30px",
+  demoSection: {
+    marginTop: "32px",
+    paddingTop: "24px",
     borderTop: "1px solid #e2e8f0"
   },
-  testUsersTitle: {
-    fontSize: "14px",
+  demoTitle: {
+    fontSize: "0.75rem",
     fontWeight: "600",
     color: "#64748b",
-    marginBottom: "20px",
+    marginBottom: "16px",
     textAlign: "center",
     textTransform: "uppercase",
     letterSpacing: "0.5px"
@@ -430,34 +335,47 @@ const styles = {
   },
   userCard: {
     backgroundColor: "#f8fafc",
-    padding: "14px",
-    borderRadius: "10px",
-    fontSize: "11px",
+    padding: "12px",
+    borderRadius: "8px",
+    fontSize: "0.75rem",
     border: "1px solid #e2e8f0",
-    lineHeight: "1.4",
-    transition: "all 0.2s ease"
+    lineHeight: "1.4"
   },
   userRole: {
     display: "block",
-    marginBottom: "6px",
-    fontSize: "10px",
+    marginBottom: "4px",
+    fontSize: "0.7rem",
     color: "#1e40af",
     textTransform: "uppercase",
     letterSpacing: "0.5px"
   },
   credential: {
-    marginBottom: "3px",
-    fontFamily: "monospace"
-  },
-  footer: {
-    marginTop: "30px",
-    textAlign: "center"
-  },
-  footerText: {
-    fontSize: "12px",
-    color: "#94a3b8",
-    fontWeight: "500"
+    marginBottom: "2px",
+    fontFamily: "monospace",
+    fontSize: "0.7rem"
   }
 };
+
+// Add CSS animations
+const styleSheet = document.styleSheets[0];
+styleSheet.insertRule(`
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(-20px) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+`, styleSheet.cssRules.length);
+
+styleSheet.insertRule(`
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+`, styleSheet.cssRules.length);
 
 export default Login;
