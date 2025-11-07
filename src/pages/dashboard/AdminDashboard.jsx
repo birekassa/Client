@@ -4,7 +4,7 @@ function AdminDashboard() {
   const [active, setActive] = useState("Home");
 
   const menuItems = [
-    "Home",
+    "Overview",
     "Manage Users",
     "Create Account",
     "System Settings",
@@ -42,7 +42,7 @@ function AdminDashboard() {
         </header>
 
         <section style={styles.content}>
-          {active === "Home" && (
+          {active === "Overview" && (
             <p>Welcome Admin! Use the sidebar to manage the kebele system.</p>
           )}
           {active === "Manage Users" && (

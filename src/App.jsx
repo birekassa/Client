@@ -1,4 +1,5 @@
 // src/App.js
+
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
@@ -9,11 +10,14 @@ import Footer from "./components/Footer";
 // 🧩 Public Pages
 import Home from "./pages/Home";
 import Login from "./pages/Login";
-import Signup from "./pages/Signup";
+import Blogs from "./pages/Blogs";
+import ContactUs from "./pages/Contact";
+import AboutUs from "./pages/About";
+import Services from "./pages/Services"; // Added Services page
 
 // 🧩 Private Pages
 import InternalHome from "./pages/InternalHome";
-import PrivateRoute from "./PrivateRoute";
+import PrivateRoute from "./components/PrivateRoute"; // Assuming this is in components
 
 // 🧩 Dashboards for each role
 import AdminDashboard from "./pages/dashboard/AdminDashboard";
@@ -30,12 +34,15 @@ function App() {
       <Header />
 
       {/* 🟢 Page Wrapper for main content */}
-      <main style={{ minHeight: "80vh", padding: "20px" }}>
+      <main style={{ minHeight: "80vh" }}>
         <Routes>
           {/* 🌍 Public Routes */}
           <Route path="/" element={<Home />} />
-          <Route path="/signup" element={<Signup />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/about" element={<AboutUs />} />
+          <Route path="/contact" element={<ContactUs />} />
+          <Route path="/blogs" element={<Blogs />} />
+          <Route path="/services" element={<Services />} />
 
           {/* 🔒 Private Routes */}
           <Route
@@ -96,6 +103,22 @@ function App() {
               </PrivateRoute>
             }
           />
+
+          {/* 🎯 404 Page - Catch all route */}
+          <Route path="*" element={
+            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+              <div className="text-center">
+                <h1 className="text-6xl font-bold text-gray-800 mb-4">404</h1>
+                <p className="text-xl text-gray-600 mb-8">Page not found</p>
+                <a 
+                  href="/" 
+                  className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Return Home
+                </a>
+              </div>
+            </div>
+          } />
         </Routes>
       </main>
 
