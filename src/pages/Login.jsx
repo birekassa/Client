@@ -117,6 +117,7 @@ function Login() {
           {/* Header */}
           <div style={styles.header}>
             <div style={styles.logo}>
+              <div style={styles.logoIcon}>🏛️</div>
               <h2 style={styles.title}>Kebele Management</h2>
             </div>
             <button 
