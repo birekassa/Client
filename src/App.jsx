@@ -15,7 +15,7 @@ import PrivateRoute from "./components/PrivateRoute"; // Assuming this is in com
 // 🧩 Dashboards for each role
 import AdminDashboard from "./pages/dashboard/AdminDashboard";
 import ChairmanDashboard from "./pages/dashboard/ChairmanDashboard";
-import RecordOfficerDashboard from "./pages/dashboard/RecordOfficerDashboard";
+import RecordOfficerDashboard from "./RecordOficer/RecordOfficerDashboard";
 import CashierDashboard from "./pages/dashboard/CashierDashboard";
 import SocialJusticeDashboard from "./pages/dashboard/SocialJusticeDashboard";
 import KebeleCouncilDashboard from "./pages/dashboard/KebeleCouncilDashboard";

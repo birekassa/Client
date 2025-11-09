@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaUsers, FaHome, FaFileAlt, FaCog, FaTachometerAlt, FaBars, FaTimes } from "react-icons/fa";
-import DashboardHeader from "../../components/../layout/DashboardHeader";
-import DashboardSidebar from "../../layout/DashboardSidebar";
-import Overview from "../../components/Overview/Overview";
+import DashboardHeader from "../layout/DashboardHeader";
+import DashboardSidebar from "../layout/DashboardSidebar";
+import Overview from "./Overview";
 
 function RecordOfficerDashboard() {
   const [active, setActive] = useState("Overview");
