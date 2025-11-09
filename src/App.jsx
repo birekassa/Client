@@ -9,7 +9,6 @@ import AboutUs from "./pages/About";
 import Services from "./pages/Services";
 
 // 🧩 Private Pages
-import InternalHome from "./pages/InternalHome";
 import PrivateRoute from "./components/PrivateRoute"; // Assuming this is in components
 
 // 🧩 Dashboards for each role
@@ -37,15 +36,7 @@ function App() {
           <Route path="/blogs" element={<Blogs />} />
           <Route path="/services" element={<Services />} />
 
-          {/* 🔒 Private Routes */}
-          <Route
-            path="/internal"
-            element={
-              <PrivateRoute>
-                <InternalHome />
-              </PrivateRoute>
-            }
-          />
+    
 
           {/* 🧭 Dashboards by Role */}
           <Route

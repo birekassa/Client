@@ -1,5 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import { FaHome, FaUsers, FaFileAlt, FaCog, FaSignOutAlt, FaUserCircle, FaTimes, FaTachometerAlt } from 'react-icons/fa';
+import React from 'react';
+import { 
+  FaHome,
+  FaUsers,
+  FaFileAlt,
+  FaCog,
+  FaSignOutAlt,
+  FaUserCircle,
+  FaTimes,
+  FaTachometerAlt,
+  FaUserPlus,
+  FaBaby,
+  FaBuilding,
+  FaIdCard,
+  FaSearch,
+  FaChartBar,
+  FaTasks
+} from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 
 const DashboardSidebar = ({
@@ -15,13 +31,93 @@ const DashboardSidebar = ({
 }) => {
   const navigate = useNavigate();
 
-  const defaultNavItems = [
-    { id: 'overview', label: 'Overview', path: '/record-officer', icon: FaTachometerAlt },
-    { id: 'register-population', label: 'Register Population', path: '/record-officer/register', icon: FaUsers },
-    { id: 'register-houses', label: 'Register Houses', path: '/record-officer/houses', icon: FaHome },
-    { id: 'reports', label: 'Generate Reports', path: '/record-officer/reports', icon: FaFileAlt },
-    { id: 'settings', label: 'Settings', path: '/record-officer/settings', icon: FaCog },
-  ];
+ const defaultNavItems = [
+  // Dashboard
+  {
+    id: 'dashboard',
+    label: 'Dashboard',
+    path: '/record-officer',
+    icon: FaTachometerAlt
+  },
+  
+  // Citizen Management
+  {
+    id: 'citizen-registration',
+    label: 'Citizen Registration',
+    path: '/record-officer/citizen-registration',
+    icon: FaUserPlus
+  },
+  {
+    id: 'family-records',
+    label: 'Family Records',
+    path: '/record-officer/family-records',
+    icon: FaUsers
+  },
+  {
+    id: 'birth-death',
+    label: 'Birth & Death Records',
+    path: '/record-officer/birth-death',
+    icon: FaBaby
+  },
+  
+  // Property Management
+  {
+    id: 'house-registration',
+    label: 'House Registration',
+    path: '/record-officer/house-registration',
+    icon: FaHome
+  },
+  {
+    id: 'property-records',
+    label: 'Property Records',
+    path: '/record-officer/property-records',
+    icon: FaBuilding
+  },
+  
+  // Documents & IDs
+  {
+    id: 'id-management',
+    label: 'ID Card Management',
+    path: '/record-officer/id-management',
+    icon: FaIdCard
+  },
+  {
+    id: 'document-search',
+    label: 'Document Search',
+    path: '/record-officer/document-search',
+    icon: FaSearch
+  },
+  
+  // Reports
+  {
+    id: 'reports',
+    label: 'Generate Reports',
+    path: '/record-officer/reports',
+    icon: FaFileAlt
+  },
+  {
+    id: 'statistics',
+    label: 'Population Statistics',
+    path: '/record-officer/statistics',
+    icon: FaChartBar
+  },
+  
+  // Tasks
+  {
+    id: 'pending-tasks',
+    label: 'Pending Tasks',
+    path: '/record-officer/pending-tasks',
+    icon: FaTasks
+  },
+  
+  // Settings
+  {
+    id: 'settings',
+    label: 'Settings',
+    path: '/record-officer/settings',
+    icon: FaCog
+  }
+];
 
   const navItems = navigationItems.length > 0 ? navigationItems : defaultNavItems;
 

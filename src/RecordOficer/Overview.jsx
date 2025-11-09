@@ -1,4 +1,17 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { 
+  FaUsers, 
+  FaHome, 
+  FaFileAlt, 
+  FaExclamationTriangle, 
+  FaCheckCircle, 
+  FaClock,
+  FaArrowUp,
+  FaArrowDown,
+  FaEye,
+  FaPlus,
+  FaChartLine
+} from 'react-icons/fa';
 import {
   BarChart,
   Bar,
@@ -16,342 +29,431 @@ import {
   ResponsiveContainer,
   Cell
 } from 'recharts';
-import {
-  FaFileAlt,
-  FaClock,
-  FaCheckCircle,
-  FaUsers,
-  FaChartLine,
-  FaExclamationTriangle,
-  FaArrowUp,
-  FaArrowDown,
-  FaSearch,
-  FaUpload,
-  FaArchive
-} from 'react-icons/fa';
 
-const Overview = () => {
-  // Sample data for charts
-  const documentStats = [
-    { name: 'Jan', processed: 400, pending: 240, approved: 360 },
-    { name: 'Feb', processed: 300, pending: 139, approved: 280 },
-    { name: 'Mar', processed: 200, pending: 180, approved: 190 },
-    { name: 'Apr', processed: 278, pending: 190, approved: 220 },
-    { name: 'May', processed: 189, pending: 120, approved: 160 },
-    { name: 'Jun', processed: 239, pending: 150, approved: 200 },
-  ];
+const Overview = ({ setActive }) => {
+  const [stats, setStats] = useState({
+    totalPopulation: 0,
+    totalHouses: 0,
+    pendingRegistrations: 0,
+    completedReports: 0
+  });
 
-  const approvalRateData = [
-    { name: 'Week 1', rate: 92 },
-    { name: 'Week 2', rate: 88 },
-    { name: 'Week 3', rate: 96 },
-    { name: 'Week 4', rate: 94 },
-    { name: 'Week 5', rate: 98 },
-  ];
+  // Chart Data
+  const [populationTrendData, setPopulationTrendData] = useState([]);
+  const [houseRegistrationData, setHouseRegistrationData] = useState([]);
+  const [populationDistributionData, setPopulationDistributionData] = useState([]);
+  const [registrationStatusData, setRegistrationStatusData] = useState([]);
+  const [monthlyActivityData, setMonthlyActivityData] = useState([]);
 
-  const documentTypes = [
-    { name: 'ID Cards', value: 35, color: '#0088FE' },
-    { name: 'Birth Certificates', value: 25, color: '#00C49F' },
-    { name: 'Residence Proof', value: 20, color: '#FFBB28' },
-    { name: 'Business Licenses', value: 15, color: '#FF8042' },
-    { name: 'Other Documents', value: 5, color: '#8884D8' },
-  ];
-
-  const dailyPerformance = [
-    { day: 'Mon', documents: 45, efficiency: 92 },
-    { day: 'Tue', documents: 52, efficiency: 88 },
-    { day: 'Wed', documents: 49, efficiency: 95 },
-    { day: 'Thu', documents: 60, efficiency: 90 },
-    { day: 'Fri', documents: 55, efficiency: 94 },
-    { day: 'Sat', documents: 30, efficiency: 85 },
-  ];
-
-  // Stats cards data
-  const statsCards = [
+  const [recentActivities, setRecentActivities] = useState([]);
+  
+  const quickActions = [
     {
-      title: 'Total Records',
-      value: '2,847',
-      change: '+12%',
-      trend: 'up',
-      icon: FaFileAlt,
+      id: 1,
+      title: 'Register New Person',
+      description: 'Add new population data',
+      icon: FaUsers,
       color: 'bg-blue-500',
-      description: 'All time documents'
+      action: () => setActive('Register Population')
     },
     {
-      title: 'Pending Review',
-      value: '23',
-      change: '-5%',
-      trend: 'down',
-      icon: FaClock,
-      color: 'bg-orange-500',
-      description: 'Awaiting approval'
-    },
-    {
-      title: 'Approved Today',
-      value: '45',
-      change: '+18%',
-      trend: 'up',
-      icon: FaCheckCircle,
+      id: 2,
+      title: 'Register New House',
+      description: 'Add new housing data',
+      icon: FaHome,
       color: 'bg-green-500',
-      description: 'Processed documents'
+      action: () => setActive('Register Houses')
     },
     {
-      title: 'Approval Rate',
-      value: '98.2%',
-      change: '+2.3%',
-      trend: 'up',
-      icon: FaChartLine,
+      id: 3,
+      title: 'Generate Report',
+      description: 'Create population reports',
+      icon: FaFileAlt,
       color: 'bg-purple-500',
-      description: 'Success rate'
+      action: () => setActive('Generate Reports')
+    },
+    {
+      id: 4,
+      title: 'View Statistics',
+      description: 'Analytics and insights',
+      icon: FaChartLine,
+      color: 'bg-orange-500',
+      action: () => setActive('Generate Reports')
     }
   ];
 
-  const quickActions = [
-    { icon: FaUpload, label: 'Upload New', color: 'bg-emerald-500 hover:bg-emerald-600' },
-    { icon: FaSearch, label: 'Quick Search', color: 'bg-blue-500 hover:bg-blue-600' },
-    { icon: FaClock, label: 'Pending Tasks', color: 'bg-orange-500 hover:bg-orange-600' },
-    { icon: FaArchive, label: 'View Archive', color: 'bg-purple-500 hover:bg-purple-600' }
-  ];
+  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
 
-  const recentActivities = [
-    { action: 'Approved ID Card Application', time: '2 mins ago', type: 'success' },
-    { action: 'New Birth Certificate Submitted', time: '15 mins ago', type: 'info' },
-    { action: 'Residence Proof Requires Review', time: '1 hour ago', type: 'warning' },
-    { action: 'Business License Processed', time: '2 hours ago', type: 'success' },
-    { action: 'Document Verification Completed', time: '3 hours ago', type: 'success' }
-  ];
+  // Mock data - replace with actual API calls
+  useEffect(() => {
+    const fetchOverviewData = async () => {
+      // Stats data
+      setStats({
+        totalPopulation: 12457,
+        totalHouses: 3241,
+        pendingRegistrations: 23,
+        completedReports: 45
+      });
+
+      // Population trend data (last 6 months)
+      setPopulationTrendData([
+        { month: 'Jan', population: 11800, newRegistrations: 120 },
+        { month: 'Feb', population: 11950, newRegistrations: 150 },
+        { month: 'Mar', population: 12080, newRegistrations: 130 },
+        { month: 'Apr', population: 12190, newRegistrations: 110 },
+        { month: 'May', population: 12320, newRegistrations: 130 },
+        { month: 'Jun', population: 12457, newRegistrations: 137 }
+      ]);
+
+      // House registration data
+      setHouseRegistrationData([
+        { type: 'Residential', count: 2850 },
+        { type: 'Commercial', count: 241 },
+        { type: 'Mixed Use', count: 150 },
+        { type: 'Under Construction', count: 120 }
+      ]);
+
+      // Population distribution data
+      setPopulationDistributionData([
+        { name: '0-18 Years', value: 2800, color: '#0088FE' },
+        { name: '19-35 Years', value: 4200, color: '#00C49F' },
+        { name: '36-50 Years', value: 3200, color: '#FFBB28' },
+        { name: '51-65 Years', value: 1500, color: '#FF8042' },
+        { name: '65+ Years', value: 1200, color: '#8884D8' }
+      ]);
+
+      // Registration status data
+      setRegistrationStatusData([
+        { status: 'Completed', count: 12434, color: '#00C49F' },
+        { status: 'Pending', count: 23, color: '#FFBB28' },
+        { status: 'In Review', count: 45, color: '#0088FE' },
+        { status: 'Rejected', count: 12, color: '#FF8042' }
+      ]);
+
+      // Monthly activity data
+      setMonthlyActivityData([
+        { month: 'Jan', registrations: 145, verifications: 120 },
+        { month: 'Feb', registrations: 178, verifications: 155 },
+        { month: 'Mar', registrations: 162, verifications: 140 },
+        { month: 'Apr', registrations: 195, verifications: 168 },
+        { month: 'May', registrations: 210, verifications: 185 },
+        { month: 'Jun', registrations: 198, verifications: 172 }
+      ]);
+
+      // Recent activities
+      setRecentActivities([
+        {
+          id: 1,
+          type: 'registration',
+          message: 'New population registration completed',
+          time: '2 minutes ago',
+          status: 'completed',
+          icon: FaCheckCircle,
+          color: 'text-green-500'
+        },
+        {
+          id: 2,
+          type: 'house',
+          message: 'House registration requires verification',
+          time: '15 minutes ago',
+          status: 'pending',
+          icon: FaClock,
+          color: 'text-yellow-500'
+        },
+        {
+          id: 3,
+          type: 'report',
+          message: 'Monthly population report generated',
+          time: '1 hour ago',
+          status: 'completed',
+          icon: FaFileAlt,
+          color: 'text-blue-500'
+        },
+        {
+          id: 4,
+          type: 'alert',
+          message: '3 pending registrations need attention',
+          time: '2 hours ago',
+          status: 'warning',
+          icon: FaExclamationTriangle,
+          color: 'text-red-500'
+        }
+      ]);
+    };
+
+    fetchOverviewData();
+  }, []);
+
+  const StatCard = ({ title, value, icon: Icon, trend, description }) => (
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm font-medium text-gray-600">{title}</p>
+          <p className="text-2xl font-bold text-gray-900 mt-1">{value.toLocaleString()}</p>
+          {trend && (
+            <div className={`flex items-center mt-2 text-sm ${trend.isPositive ? 'text-green-600' : 'text-red-600'}`}>
+              {trend.isPositive ? <FaArrowUp size={12} /> : <FaArrowDown size={12} />}
+              <span className="ml-1">{trend.value}% from last month</span>
+            </div>
+          )}
+        </div>
+        <div className="p-3 bg-blue-50 rounded-lg">
+          <Icon className="text-blue-600 text-xl" />
+        </div>
+      </div>
+      {description && (
+        <p className="text-xs text-gray-500 mt-3">{description}</p>
+      )}
+    </div>
+  );
+
+  const ActivityItem = ({ activity }) => {
+    const Icon = activity.icon;
+    return (
+      <div className="flex items-start space-x-3 p-3 hover:bg-gray-50 rounded-lg transition-colors">
+        <div className="flex-shrink-0">
+          <Icon className={`text-lg ${activity.color}`} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium text-gray-900">{activity.message}</p>
+          <p className="text-xs text-gray-500 mt-1">{activity.time}</p>
+        </div>
+        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+          activity.status === 'completed' ? 'bg-green-100 text-green-800' :
+          activity.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+          'bg-red-100 text-red-800'
+        }`}>
+          {activity.status}
+        </span>
+      </div>
+    );
+  };
+
+  // Custom tooltip for charts
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-white p-3 border border-gray-300 rounded-lg shadow-lg">
+          <p className="font-medium text-gray-900">{label}</p>
+          {payload.map((entry, index) => (
+            <p key={index} style={{ color: entry.color }} className="text-sm">
+              {entry.name}: {entry.value.toLocaleString()}
+            </p>
+          ))}
+        </div>
+      );
+    }
+    return null;
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-            Record Officer Dashboard
-          </h1>
-          <p className="text-gray-600 text-lg">
-            Welcome back! Here's your document processing overview.
-          </p>
-        </div>
-
-        {/* Stats Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {statsCards.map((stat, index) => {
-            const Icon = stat.icon;
-            return (
-              <div
-                key={index}
-                className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200 hover:shadow-xl transition-all duration-300"
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <div className={`p-3 rounded-xl ${stat.color} text-white`}>
-                    <Icon className="text-xl" />
-                  </div>
-                  <div className={`flex items-center text-sm font-semibold ${
-                    stat.trend === 'up' ? 'text-green-600' : 'text-red-600'
-                  }`}>
-                    {stat.trend === 'up' ? <FaArrowUp className="mr-1" /> : <FaArrowDown className="mr-1" />}
-                    {stat.change}
-                  </div>
-                </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-1">{stat.value}</h3>
-                <p className="text-gray-700 font-semibold mb-1">{stat.title}</p>
-                <p className="text-gray-500 text-sm">{stat.description}</p>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Charts Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {/* Document Processing Trend */}
-          <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-bold text-gray-900">Document Processing Trend</h3>
-              <div className="flex items-center space-x-4 text-sm">
-                <div className="flex items-center">
-                  <div className="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
-                  <span>Processed</span>
-                </div>
-                <div className="flex items-center">
-                  <div className="w-3 h-3 bg-orange-500 rounded-full mr-2"></div>
-                  <span>Pending</span>
-                </div>
-                <div className="flex items-center">
-                  <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
-                  <span>Approved</span>
-                </div>
-              </div>
-            </div>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={documentStats}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis dataKey="name" stroke="#666" />
-                <YAxis stroke="#666" />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'white', 
-                    border: 'none', 
-                    borderRadius: '8px',
-                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-                  }}
-                />
-                <Legend />
-                <Bar dataKey="processed" fill="#3B82F6" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="pending" fill="#F59E0B" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="approved" fill="#10B981" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+    <div className="space-y-6">
+      {/* Welcome Section */}
+      <div className="bg-gradient-to-r from-blue-600 to-blue-800 rounded-lg shadow-sm p-6 text-white">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">Welcome back, Record Officer!</h1>
+            <p className="text-blue-100 mt-2">
+              Here's what's happening in your kebele administration today.
+            </p>
           </div>
+          <div className="mt-4 lg:mt-0">
+            <div className="flex items-center space-x-2 text-sm">
+              <FaCheckCircle className="text-green-300" />
+              <span>Last login: Today at 08:30 AM</span>
+            </div>
+          </div>
+        </div>
+      </div>
 
-          {/* Approval Rate Trend */}
-          <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
-            <h3 className="text-xl font-bold text-gray-900 mb-6">Approval Rate Trend</h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <AreaChart data={approvalRateData}>
+      {/* Key Metrics Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <StatCard
+          title="Total Population"
+          value={stats.totalPopulation}
+          icon={FaUsers}
+          trend={{ isPositive: true, value: 2.5 }}
+          description="Registered individuals in the kebele"
+        />
+        <StatCard
+          title="Total Houses"
+          value={stats.totalHouses}
+          icon={FaHome}
+          trend={{ isPositive: true, value: 1.2 }}
+          description="Registered residential properties"
+        />
+        <StatCard
+          title="Pending Registrations"
+          value={stats.pendingRegistrations}
+          icon={FaClock}
+          description="Requiring immediate attention"
+        />
+        <StatCard
+          title="Reports Generated"
+          value={stats.completedReports}
+          icon={FaFileAlt}
+          trend={{ isPositive: true, value: 15 }}
+          description="This month"
+        />
+      </div>
+
+      {/* Charts Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Population Trend Chart */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Population Growth Trend</h3>
+          <div className="h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={populationTrendData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis dataKey="name" stroke="#666" />
+                <XAxis dataKey="month" stroke="#666" />
                 <YAxis stroke="#666" />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'white', 
-                    border: 'none', 
-                    borderRadius: '8px',
-                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-                  }}
-                />
-                <Area 
-                  type="monotone" 
-                  dataKey="rate" 
-                  stroke="#8B5CF6" 
-                  fill="url(#colorRate)" 
-                  strokeWidth={3}
-                />
-                <defs>
-                  <linearGradient id="colorRate" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0.1}/>
-                  </linearGradient>
-                </defs>
+                <Tooltip content={<CustomTooltip />} />
+                <Legend />
+                <Area type="monotone" dataKey="population" stroke="#0088FE" fill="#0088FE" fillOpacity={0.3} name="Total Population" />
+                <Area type="monotone" dataKey="newRegistrations" stroke="#00C49F" fill="#00C49F" fillOpacity={0.3} name="New Registrations" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        {/* Second Row Charts */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          {/* Document Types Distribution */}
-          <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200 lg:col-span-1">
-            <h3 className="text-xl font-bold text-gray-900 mb-6">Document Types</h3>
-            <ResponsiveContainer width="100%" height={250}>
+        {/* Population Distribution Pie Chart */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Population Distribution by Age</h3>
+          <div className="h-80">
+            <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={documentTypes}
+                  data={populationDistributionData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={60}
+                  labelLine={false}
+                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                   outerRadius={80}
-                  paddingAngle={5}
+                  fill="#8884d8"
                   dataKey="value"
                 >
-                  {documentTypes.map((entry, index) => (
+                  {populationDistributionData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'white', 
-                    border: 'none', 
-                    borderRadius: '8px',
-                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-                  }}
-                />
+                <Tooltip content={<CustomTooltip />} />
                 <Legend />
               </PieChart>
             </ResponsiveContainer>
           </div>
+        </div>
 
-          {/* Daily Performance */}
-          <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200 lg:col-span-2">
-            <h3 className="text-xl font-bold text-gray-900 mb-6">Daily Performance</h3>
-            <ResponsiveContainer width="100%" height={250}>
-              <LineChart data={dailyPerformance}>
+        {/* Registration Status Chart */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Registration Status</h3>
+          <div className="h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={registrationStatusData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis dataKey="day" stroke="#666" />
-                <YAxis yAxisId="left" stroke="#666" />
-                <YAxis yAxisId="right" orientation="right" stroke="#666" />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'white', 
-                    border: 'none', 
-                    borderRadius: '8px',
-                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-                  }}
-                />
-                <Legend />
-                <Line 
-                  yAxisId="left"
-                  type="monotone" 
-                  dataKey="documents" 
-                  stroke="#3B82F6" 
-                  strokeWidth={3}
-                  dot={{ fill: '#3B82F6', strokeWidth: 2, r: 4 }}
-                />
-                <Line 
-                  yAxisId="right"
-                  type="monotone" 
-                  dataKey="efficiency" 
-                  stroke="#10B981" 
-                  strokeWidth={3}
-                  dot={{ fill: '#10B981', strokeWidth: 2, r: 4 }}
-                />
-              </LineChart>
+                <XAxis dataKey="status" stroke="#666" />
+                <YAxis stroke="#666" />
+                <Tooltip content={<CustomTooltip />} />
+                <Bar dataKey="count" name="Count">
+                  {registrationStatusData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Bar>
+              </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        {/* Bottom Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Quick Actions */}
-          <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
-            <h3 className="text-xl font-bold text-gray-900 mb-6">Quick Actions</h3>
-            <div className="grid grid-cols-2 gap-4">
-              {quickActions.map((action, index) => {
-                const Icon = action.icon;
-                return (
-                  <button
-                    key={index}
-                    className={`${action.color} text-white p-4 rounded-xl transition-all duration-300 transform hover:scale-105 flex flex-col items-center`}
-                  >
-                    <Icon className="text-2xl mb-2" />
-                    <span className="text-sm font-semibold text-center">{action.label}</span>
-                  </button>
-                );
-              })}
+        {/* Monthly Activity Chart */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Monthly Registration Activity</h3>
+          <div className="h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={monthlyActivityData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis dataKey="month" stroke="#666" />
+                <YAxis stroke="#666" />
+                <Tooltip content={<CustomTooltip />} />
+                <Legend />
+                <Line type="monotone" dataKey="registrations" stroke="#8884d8" strokeWidth={2} name="New Registrations" />
+                <Line type="monotone" dataKey="verifications" stroke="#82ca9d" strokeWidth={2} name="Verifications" />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Quick Actions */}
+        <div className="lg:col-span-2">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+            <div className="p-6 border-b border-gray-200">
+              <h2 className="text-lg font-semibold text-gray-900">Quick Actions</h2>
+              <p className="text-sm text-gray-600 mt-1">Frequently used tasks</p>
+            </div>
+            <div className="p-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {quickActions.map((action) => {
+                  const Icon = action.icon;
+                  return (
+                    <button
+                      key={action.id}
+                      onClick={action.action}
+                      className="flex items-center p-4 border border-gray-200 rounded-lg hover:border-blue-300 hover:shadow-md transition-all group"
+                    >
+                      <div className={`p-3 rounded-lg ${action.color} text-white group-hover:scale-110 transition-transform`}>
+                        <Icon size={18} />
+                      </div>
+                      <div className="ml-4 text-left">
+                        <h3 className="font-medium text-gray-900 group-hover:text-blue-600">
+                          {action.title}
+                        </h3>
+                        <p className="text-sm text-gray-500 mt-1">
+                          {action.description}
+                        </p>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
+        </div>
 
-          {/* Recent Activities */}
-          <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200 lg:col-span-2">
-            <h3 className="text-xl font-bold text-gray-900 mb-6">Recent Activities</h3>
-            <div className="space-y-4">
-              {recentActivities.map((activity, index) => (
-                <div
-                  key={index}
-                  className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                >
-                  <div className={`w-3 h-3 rounded-full ${
-                    activity.type === 'success' ? 'bg-green-500' :
-                    activity.type === 'warning' ? 'bg-orange-500' : 'bg-blue-500'
-                  }`}></div>
-                  <div className="flex-1">
-                    <p className="text-gray-800 font-medium">{activity.action}</p>
-                    <p className="text-gray-500 text-sm">{activity.time}</p>
-                  </div>
-                </div>
+        {/* Recent Activities */}
+        <div className="lg:col-span-1">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 h-full">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-gray-900">Recent Activities</h2>
+                <button className="text-sm text-blue-600 hover:text-blue-800 font-medium">
+                  View All
+                </button>
+              </div>
+              <p className="text-sm text-gray-600 mt-1">Latest system activities</p>
+            </div>
+            <div className="p-4 max-h-96 overflow-y-auto">
+              {recentActivities.map((activity) => (
+                <ActivityItem key={activity.id} activity={activity} />
               ))}
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* House Types Chart */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">House Registration by Type</h3>
+        <div className="h-80">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={houseRegistrationData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+              <XAxis dataKey="type" stroke="#666" />
+              <YAxis stroke="#666" />
+              <Tooltip content={<CustomTooltip />} />
+              <Bar dataKey="count" name="Number of Houses" fill="#8884d8" />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
       </div>
     </div>
