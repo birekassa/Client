@@ -1,14 +1,40 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaUsers, FaHome, FaFileAlt, FaCog, FaTachometerAlt } from "react-icons/fa";
-import DashboardHeader from "../../components/DashboardHeader";
-import DashboardSidebar from "../../components/DashboardSidebar";
+import { FaUsers, FaHome, FaFileAlt, FaCog, FaTachometerAlt, FaBars, FaTimes } from "react-icons/fa";
+import DashboardHeader from "../../components/../layout/DashboardHeader";
+import DashboardSidebar from "../../layout/DashboardSidebar";
 import Overview from "../../components/Overview/Overview";
 
 function RecordOfficerDashboard() {
   const [active, setActive] = useState("Overview");
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false); // Start closed on mobile
+  const [isMobile, setIsMobile] = useState(false);
   const navigate = useNavigate();
+
+  // Check screen size and adjust sidebar state accordingly
+  useEffect(() => {
+    const checkScreenSize = () => {
+      const mobile = window.innerWidth < 1024; // 1024px is typical breakpoint for lg in Tailwind
+      setIsMobile(mobile);
+      
+      // On desktop, sidebar should be open by default
+      // On mobile, sidebar should be closed by default
+      if (!mobile) {
+        setSidebarOpen(true);
+      } else {
+        setSidebarOpen(false);
+      }
+    };
+
+    // Check initially
+    checkScreenSize();
+
+    // Add event listener for window resize
+    window.addEventListener('resize', checkScreenSize);
+
+    // Cleanup
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
 
   const menuItems = [
     {
@@ -57,21 +83,34 @@ function RecordOfficerDashboard() {
 
   const handleProfileClick = () => {
     setActive("Settings");
+    if (isMobile) {
+      setSidebarOpen(false);
+    }
   };
 
   const handleNavigation = (item) => {
     setActive(item.label);
-    if (window.innerWidth < 1024) {
+    if (isMobile) {
       setSidebarOpen(false);
     }
   };
 
   const handleSettingsClick = () => {
     setActive("Settings");
+    if (isMobile) {
+      setSidebarOpen(false);
+    }
   };
 
   const handleMenuToggle = () => {
     setSidebarOpen(!sidebarOpen);
+  };
+
+  // Close sidebar when clicking on overlay (mobile)
+  const handleOverlayClick = () => {
+    if (isMobile) {
+      setSidebarOpen(false);
+    }
   };
 
   const renderContent = () => {
@@ -81,8 +120,8 @@ function RecordOfficerDashboard() {
 
       case "Register Population":
         return (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Register Population</h2>
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4">Register Population</h2>
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <p className="text-blue-700">Population registration component will be implemented here.</p>
             </div>
@@ -91,8 +130,8 @@ function RecordOfficerDashboard() {
 
       case "Register Houses":
         return (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">House Registration</h2>
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4">House Registration</h2>
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <p className="text-blue-700">House registration component will be implemented here.</p>
             </div>
@@ -101,8 +140,8 @@ function RecordOfficerDashboard() {
 
       case "Generate Reports":
         return (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Reports Generation</h2>
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4">Reports Generation</h2>
             <p className="text-gray-600 mb-6">Generate various reports for the kebele administration.</p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div className="bg-green-50 border border-green-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer">
@@ -123,8 +162,8 @@ function RecordOfficerDashboard() {
 
       case "Settings":
         return (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">Settings</h2>
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-6">Settings</h2>
             <div className="max-w-2xl">
               <div className="mb-8">
                 <h3 className="text-lg font-semibold text-gray-700 mb-4">Profile Settings</h3>
@@ -174,9 +213,9 @@ function RecordOfficerDashboard() {
 
       default:
         return (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
-            <div className="text-6xl mb-4">📋</div>
-            <h3 className="text-xl font-semibold text-gray-700 mb-2">Select an Option</h3>
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sm:p-8 text-center">
+            <div className="text-4xl sm:text-6xl mb-4">📋</div>
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-700 mb-2">Select an Option</h3>
             <p className="text-gray-500">Choose a menu option to get started</p>
           </div>
         );
@@ -184,34 +223,53 @@ function RecordOfficerDashboard() {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-gray-50 relative">
+      {/* Mobile Overlay */}
+      {isMobile && sidebarOpen && (
+        <div 
+          className="fixed inset-0  bg-opacity-50 z-20 lg:hidden"
+          onClick={handleOverlayClick}
+        />
+      )}
+
       {/* Sidebar */}
-   <DashboardSidebar
-      isOpen={sidebarOpen}
-      onToggle={() => setSidebarOpen(!sidebarOpen)}
-      user={user}
-      navigationItems={menuItems}
-      activePath={active}
-      onNavigate={handleNavigation}
-      onLogout={handleLogout}
-      onProfileClick={handleProfileClick}
-    />
+      <div className={`
+        fixed lg:static inset-y-0 left-0 z-30
+        transform transition-transform duration-300 ease-in-out
+        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+        lg:translate-x-0 lg:flex
+        w-64 flex-shrink-0
+      `}>
+        <DashboardSidebar
+          isOpen={sidebarOpen}
+          onToggle={handleMenuToggle}
+          user={user}
+          navigationItems={menuItems}
+          activePath={active}
+          onNavigate={handleNavigation}
+          onLogout={handleLogout}
+          onProfileClick={handleProfileClick}
+          isMobile={isMobile}
+        />
+      </div>
 
-      {/* Main Content Area - FIXED: Removed extra margin and fixed positioning */}
-      <div className="flex-1 flex flex-col min-h-screen">
-        {/* Header - Fixed at top */}
-       <DashboardHeader
-        user={user}
-        title={active}
-        subtitle="Record Management Dashboard"
-        onLogout={handleLogout}
-        onProfileClick={handleProfileClick}
-        onMenuToggle={handleMenuToggle}
-        showMenuToggle={true}
-      />
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col min-h-screen w-full lg:w-auto">
+        {/* Header */}
+        <DashboardHeader
+          user={user}
+          title={active}
+          subtitle="Record Management Dashboard"
+          onLogout={handleLogout}
+          onProfileClick={handleProfileClick}
+          onMenuToggle={handleMenuToggle}
+          showMenuToggle={true}
+          isMobile={isMobile}
+          sidebarOpen={sidebarOpen}
+        />
 
-        {/* Main Content - FIXED: Proper spacing without extra margins */}
-        <main className="flex-1 pt-16 p-6">
+        {/* Main Content */}
+        <main className="flex-1 pt-16 lg:pt-20 p-4 sm:p-6 lg:p-8 overflow-auto">
           {renderContent()}
         </main>
       </div>
