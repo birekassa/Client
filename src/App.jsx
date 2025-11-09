@@ -13,12 +13,12 @@ import InternalHome from "./pages/InternalHome";
 import PrivateRoute from "./components/PrivateRoute"; // Assuming this is in components
 
 // 🧩 Dashboards for each role
-import AdminDashboard from "./pages/dashboard/AdminDashboard";
-import ChairmanDashboard from "./pages/dashboard/ChairmanDashboard";
+import AdminDashboard from "./AdminFolder/AdminDashboard";
+import ChairmanDashboard from "./Chairman/ChairmanDashboard";
 import RecordOfficerDashboard from "./RecordOficer/RecordOfficerDashboard";
-import CashierDashboard from "./pages/dashboard/CashierDashboard";
-import SocialJusticeDashboard from "./pages/dashboard/SocialJusticeDashboard";
-import KebeleCouncilDashboard from "./pages/dashboard/KebeleCouncilDashboard";
+import CashierDashboard from "./Cashier/CashierDashboard";
+import SocialJusticeDashboard from "./SocialJustice/SocialJusticeDashboard";
+import KebeleCouncilDashboard from "./KebeleCouncil/KebeleCouncilDashboard";
 
 function App() {
   return (
