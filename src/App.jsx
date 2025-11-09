@@ -11,8 +11,6 @@ import Services from "./pages/Services";
 // 🧩 Private Pages
 import InternalHome from "./pages/InternalHome";
 import PrivateRoute from "./components/PrivateRoute"; // Assuming this is in components
-import Header from "./components/Header";
-import Footer from "./components/Footer";
 
 // 🧩 Dashboards for each role
 import AdminDashboard from "./pages/dashboard/AdminDashboard";
@@ -26,7 +24,7 @@ function App() {
   return (
     <Router>
       {/* 🟢 Common Header visible on all pages */}
-      <Header />
+     
 
       {/* 🟢 Page Wrapper for main content */}
       <main style={{ minHeight: "80vh" }}>
@@ -116,7 +114,7 @@ function App() {
           } />
         </Routes>
       </main>
-      <Footer />
+     
     </Router>
   );
 }
