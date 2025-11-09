@@ -21,8 +21,8 @@ import {
   FaLayerGroup,
   FaBolt
 } from 'react-icons/fa';
-import Header from '../components/Header';
-import Footer from '../components/Footer'; 
+import Header from '../components/../layout/Header';
+import Footer from '../components/../layout/Footer';
 
 const Services = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
