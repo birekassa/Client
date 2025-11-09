@@ -339,3 +339,16 @@ kebele-management-system/
 ├── .gitignore
 ├── README.md
 └── LICENSE
+
+
+# Check if src/components directory exists
+>> Get-ChildItem -Path "src" -Recurse -Name
+>>
+>> # Or check specifically for components
+>> Get-ChildItem -Path "src\components" -Recurse -Name -ErrorAction SilentlyContinue
+>>
+>> # Check for any header-related files
+>> Get-ChildItem -Path "src" -Recurse -Include "*header*" -Name
+>>
+>> # List all JSX files in components
+>> Get-ChildItem -Path "src\components" -Recurse -Include "*.jsx", "*.js" -Name

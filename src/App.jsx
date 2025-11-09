@@ -1,13 +1,6 @@
-// src/App.js
 
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-
-// 🧩 Common Layout Components
-import Header from "./components/Header";
-import Footer from "./components/Footer";
-
-// 🧩 Public Pages
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Blogs from "./pages/Blogs";
@@ -18,6 +11,8 @@ import Services from "./pages/Services";
 // 🧩 Private Pages
 import InternalHome from "./pages/InternalHome";
 import PrivateRoute from "./components/PrivateRoute"; // Assuming this is in components
+import Header from "./components/Header";
+import Footer from "./components/Footer";
 
 // 🧩 Dashboards for each role
 import AdminDashboard from "./pages/dashboard/AdminDashboard";
@@ -110,19 +105,17 @@ function App() {
               <div className="text-center">
                 <h1 className="text-6xl font-bold text-gray-800 mb-4">404</h1>
                 <p className="text-xl text-gray-600 mb-8">Page not found</p>
-                <a 
-                  href="/" 
+                <Link 
+                  to="/" 
                   className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   Return Home
-                </a>
+                </Link>
               </div>
             </div>
           } />
         </Routes>
       </main>
-
-      {/* 🟢 Common Footer visible on all pages */}
       <Footer />
     </Router>
   );
