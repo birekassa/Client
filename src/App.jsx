@@ -1,4 +1,3 @@
-
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import Home from "./pages/Home";
@@ -7,9 +6,8 @@ import Blogs from "./pages/Blogs";
 import ContactUs from "./pages/Contact";
 import AboutUs from "./pages/About";
 import Services from "./pages/Services";
-
 // 🧩 Private Pages
-import PrivateRoute from "./components/PrivateRoute"; // Assuming this is in components
+import PrivateRoute from "./components/PrivateRoute"; 
 
 // 🧩 Dashboards for each role
 import AdminDashboard from "./AdminFolder/AdminDashboard";
@@ -23,7 +21,6 @@ function App() {
   return (
     <Router>
       {/* 🟢 Common Header visible on all pages */}
-     
 
       {/* 🟢 Page Wrapper for main content */}
       <main style={{ minHeight: "80vh" }}>
@@ -36,11 +33,9 @@ function App() {
           <Route path="/blogs" element={<Blogs />} />
           <Route path="/services" element={<Services />} />
 
-    
-
           {/* 🧭 Dashboards by Role */}
           <Route
-            path="/admin"
+            path="/admin/*"
             element={
               <PrivateRoute>
                 <AdminDashboard />
@@ -48,7 +43,7 @@ function App() {
             }
           />
           <Route
-            path="/chairman"
+            path="/chairman/*"
             element={
               <PrivateRoute>
                 <ChairmanDashboard />
@@ -56,7 +51,7 @@ function App() {
             }
           />
           <Route
-            path="/record-officer"
+            path="/record-officer/*"
             element={
               <PrivateRoute>
                 <RecordOfficerDashboard />
@@ -64,7 +59,7 @@ function App() {
             }
           />
           <Route
-            path="/cashier"
+            path="/cashier/*"
             element={
               <PrivateRoute>
                 <CashierDashboard />
@@ -72,7 +67,7 @@ function App() {
             }
           />
           <Route
-            path="/social-justice"
+            path="/social-justice/*"
             element={
               <PrivateRoute>
                 <SocialJusticeDashboard />
@@ -87,25 +82,8 @@ function App() {
               </PrivateRoute>
             }
           />
-
-          {/* 🎯 404 Page - Catch all route */}
-          <Route path="*" element={
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
-              <div className="text-center">
-                <h1 className="text-6xl font-bold text-gray-800 mb-4">404</h1>
-                <p className="text-xl text-gray-600 mb-8">Page not found</p>
-                <Link 
-                  to="/" 
-                  className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  Return Home
-                </Link>
-              </div>
-            </div>
-          } />
         </Routes>
       </main>
-     
     </Router>
   );
 }
