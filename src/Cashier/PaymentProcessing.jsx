@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FaMoneyBillWave, FaPrint, FaSearch, FaUser, FaHome, FaIdCard, FaFileAlt, FaCheckCircle } from 'react-icons/fa';
-
+import VerifyResident from "./VerifyResident";
 const PaymentProcessing = () => {
   const [activeTab, setActiveTab] = useState('new-payment');
   const [searchTerm, setSearchTerm] = useState('');
@@ -142,6 +142,7 @@ const PaymentProcessing = () => {
 
   return (
     <div className="space-y-6">
+         <VerifyResident />
       {/* Header */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <div className="flex items-center justify-between">
@@ -176,7 +177,7 @@ const PaymentProcessing = () => {
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-              New Payment
+             +Add New Payment
             </button>
             <button
               onClick={() => setActiveTab('recent-payments')}
