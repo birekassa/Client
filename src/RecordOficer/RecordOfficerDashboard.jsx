@@ -1,279 +1,213 @@
+// src/components/recordOfficer/RecordOfficerDashboard.jsx
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { FaUsers, FaHome, FaFileAlt, FaCog, FaTachometerAlt, FaBars, FaTimes } from "react-icons/fa";
-import DashboardHeader from "../layout/DashboardHeader";
-import DashboardSidebar from "../layout/DashboardSidebar";
-import Overview from "./Overview";
+import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import {
+  FaTachometerAlt, FaUserPlus, FaHome, FaChartBar, FaDatabase,
+  FaUserCircle, FaSignOutAlt, FaBars, FaTimes, FaClock, FaUsers, FaBuilding
+} from "react-icons/fa";
+
+// ALL SUB-COMPONENTS
+import RecordOfficerOverview from "./RecordOfficerOverview";
+import RegisterResident from "./RegisterResident";
+import RegisterHouse from "./RegisterHouse";
+import GenerateReport from "./GenerateReport";
+import DataManagement from "./DataManagement";
+import Profile from "./Profile.jsx";
 
 function RecordOfficerDashboard() {
-  const [active, setActive] = useState("Overview");
-  const [sidebarOpen, setSidebarOpen] = useState(false); // Start closed on mobile
-  const [isMobile, setIsMobile] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
 
-  // Check screen size and adjust sidebar state accordingly
   useEffect(() => {
-    const checkScreenSize = () => {
-      const mobile = window.innerWidth < 1024; // 1024px is typical breakpoint for lg in Tailwind
-      setIsMobile(mobile);
-      
-      // On desktop, sidebar should be open by default
-      // On mobile, sidebar should be closed by default
-      if (!mobile) {
-        setSidebarOpen(true);
-      } else {
-        setSidebarOpen(false);
-      }
-    };
-
-    // Check initially
-    checkScreenSize();
-
-    // Add event listener for window resize
-    window.addEventListener('resize', checkScreenSize);
-
-    // Cleanup
-    return () => window.removeEventListener('resize', checkScreenSize);
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
   }, []);
 
   const menuItems = [
-    {
-      id: 'overview',
-      label: 'Overview',
-      path: '/record-officer',
-      icon: FaTachometerAlt
-    },
-    {
-      id: 'register-population',
-      label: 'Register Population',
-      path: '/record-officer/register',
-      icon: FaUsers
-    },
-    {
-      id: 'register-houses',
-      label: 'Register Houses',
-      path: '/record-officer/houses',
-      icon: FaHome
-    },
-    {
-      id: 'reports',
-      label: 'Generate Reports',
-      path: '/record-officer/reports',
-      icon: FaFileAlt
-    },
-    {
-      id: 'settings',
-      label: 'Settings',
-      path: '/record-officer/settings',
-      icon: FaCog
-    }
+    { id: "overview", label: "አጠቃላይ እይታ", icon: FaTachometerAlt, path: "/record-officer" },
+    { id: "register-resident", label: "ነዋሪ መመዝገብ", icon: FaUserPlus, path: "/record-officer/register-resident" },
+    { id: "register-house", label: "ቤት መመዝገብ", icon: FaHome, path: "/record-officer/register-house" },
+    { id: "generate-report", label: "ሪፖርት ማመንጨት", icon: FaChartBar, path: "/record-officer/generate-report" },
+    { id: "data-management", label: "ዳታ ማኔጅመንት", icon: FaDatabase, path: "/record-officer/data-management" },
+    { id: "profile", label: "የእኔ ፕሮፋይል", icon: FaUserCircle, path: "/record-officer/profile" },
+    { id: "logout", label: "ውጣ", icon: FaSignOutAlt, path: "/login" }
   ];
 
-  const user = {
-    name: "Record Officer",
-    role: "Record Management",
-    department: "ደፈርጌ ኪቢቃሎ ቀበሌ"
+  const getActiveLabel = () => {
+    const currentItem = menuItems.find(item => item.path === location.pathname);
+    return currentItem ? currentItem.label : "የመዝገብ ኦፊሰር ዳሽቦርድ";
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("isLoggedIn");
-    localStorage.removeItem("role");
-    navigate("/login");
-  };
-
-  const handleProfileClick = () => {
-    setActive("Settings");
-    if (isMobile) {
-      setSidebarOpen(false);
+  const handleNavigation = (path) => {
+    if (path === "/login") {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      navigate("/login");
+    } else {
+      navigate(path);
+      setSidebarOpen(false); // Close sidebar on mobile after click
     }
   };
 
-  const handleNavigation = (item) => {
-    setActive(item.label);
-    if (isMobile) {
-      setSidebarOpen(false);
-    }
+  // Current User - AGUMAS BIRHANU
+  const currentUser = {
+    name: "AGUMAS BIRHANU",
+    id: "WDU1304903",
+    role: "Record Officer",
+    lastLogin: "ዛሬ, 08:30 ጥዋት EAT"
   };
 
-  const handleSettingsClick = () => {
-    setActive("Settings");
-    if (isMobile) {
-      setSidebarOpen(false);
-    }
-  };
-
-  const handleMenuToggle = () => {
-    setSidebarOpen(!sidebarOpen);
-  };
-
-  // Close sidebar when clicking on overlay (mobile)
-  const handleOverlayClick = () => {
-    if (isMobile) {
-      setSidebarOpen(false);
-    }
-  };
-
-  const renderContent = () => {
-    switch (active) {
-      case "Overview":
-        return <Overview setActive={setActive} />;
-
-      case "Register Population":
-        return (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4">Register Population</h2>
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <p className="text-blue-700">Population registration component will be implemented here.</p>
-            </div>
-          </div>
-        );
-
-      case "Register Houses":
-        return (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4">House Registration</h2>
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <p className="text-blue-700">House registration component will be implemented here.</p>
-            </div>
-          </div>
-        );
-
-      case "Generate Reports":
-        return (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4">Reports Generation</h2>
-            <p className="text-gray-600 mb-6">Generate various reports for the kebele administration.</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer">
-                <h3 className="font-semibold text-green-800 mb-2">Population Report</h3>
-                <p className="text-green-600 text-sm">Generate population statistics</p>
-              </div>
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer">
-                <h3 className="font-semibold text-blue-800 mb-2">Housing Report</h3>
-                <p className="text-blue-600 text-sm">Property and housing data</p>
-              </div>
-              <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer">
-                <h3 className="font-semibold text-purple-800 mb-2">Financial Report</h3>
-                <p className="text-purple-600 text-sm">Revenue and payment reports</p>
-              </div>
-            </div>
-          </div>
-        );
-
-      case "Settings":
-        return (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-6">Settings</h2>
-            <div className="max-w-2xl">
-              <div className="mb-8">
-                <h3 className="text-lg font-semibold text-gray-700 mb-4">Profile Settings</h3>
-                <form className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Full Name
-                    </label>
-                    <input 
-                      type="text" 
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="Enter your full name" 
-                      defaultValue={user.name}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Email
-                    </label>
-                    <input 
-                      type="email" 
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="Enter your email" 
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Phone Number
-                    </label>
-                    <input 
-                      type="tel" 
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="Enter your phone number" 
-                    />
-                  </div>
-                  <button 
-                    type="submit" 
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
-                  >
-                    Save Changes
-                  </button>
-                </form>
-              </div>
-            </div>
-          </div>
-        );
-
-      default:
-        return (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sm:p-8 text-center">
-            <div className="text-4xl sm:text-6xl mb-4">📋</div>
-            <h3 className="text-lg sm:text-xl font-semibold text-gray-700 mb-2">Select an Option</h3>
-            <p className="text-gray-500">Choose a menu option to get started</p>
-          </div>
-        );
-    }
+  const formatTime = (date) => {
+    return date.toLocaleTimeString('en-US', { 
+      hour: '2-digit', 
+      minute: '2-digit', 
+      second: '2-digit',
+      hour12: true 
+    }) + ' EAT';
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50 relative">
-      {/* Mobile Overlay */}
-      {isMobile && sidebarOpen && (
-        <div 
-          className="fixed inset-0  bg-opacity-50 z-20 lg:hidden"
-          onClick={handleOverlayClick}
-        />
-      )}
+    <>
+      <div className="flex min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-green-50">
+        {/* Mobile Sidebar Toggle */}
+        <div className="lg:hidden fixed top-4 left-4 z-50">
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="p-3 bg-white rounded-xl shadow-lg text-indigo-700 hover:bg-indigo-50 transition-all"
+          >
+            {sidebarOpen ? <FaTimes className="text-xl" /> : <FaBars className="text-xl" />}
+          </button>
+        </div>
 
-      {/* Sidebar */}
-      <div className={`
-        fixed lg:static inset-y-0 left-0 z-30
-        transform transition-transform duration-300 ease-in-out
-        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-        lg:translate-x-0 lg:flex
-        w-64 flex-shrink-0
-      `}>
-        <DashboardSidebar
-          isOpen={sidebarOpen}
-          onToggle={handleMenuToggle}
-          user={user}
-          navigationItems={menuItems}
-          activePath={active}
-          onNavigate={handleNavigation}
-          onLogout={handleLogout}
-          onProfileClick={handleProfileClick}
-          isMobile={isMobile}
-        />
-      </div>
+        {/* Sidebar */}
+        <aside className={`fixed lg:static inset-y-0 left-0 z-40 w-72 bg-gradient-to-b from-indigo-800 via-indigo-700 to-indigo-900 text-white transform transition-transform duration-300 ease-in-out ${
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+        } flex flex-col shadow-2xl`}>
+          <div className="p-6 border-b border-indigo-600">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-yellow-400 rounded-xl">
+                  <FaDatabase className="text-indigo-900 text-xl" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold">ወልዲያ ኬበሌ</h2>
+                  <p className="text-xs opacity-90">Record Officer • 2025</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setSidebarOpen(false)}
+                className="lg:hidden text-white opacity-70 hover:opacity-100"
+              >
+                <FaTimes />
+              </button>
+            </div>
+          </div>
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-h-screen w-full lg:w-auto">
-        {/* Header */}
-        <DashboardHeader
-          user={user}
-          title={active}
-          subtitle="Record Management Dashboard"
-          onLogout={handleLogout}
-          onProfileClick={handleProfileClick}
-          onMenuToggle={handleMenuToggle}
-          showMenuToggle={true}
-          isMobile={isMobile}
-          sidebarOpen={sidebarOpen}
-        />
+          <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+            {menuItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = location.pathname === item.path;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => handleNavigation(item.path)}
+                  className={`w-full flex items-center gap-3 p-4 rounded-xl transition-all duration-200 font-medium text-left ${
+                    isActive 
+                      ? 'bg-white text-indigo-800 shadow-lg scale-105' 
+                      : 'hover:bg-indigo-600 hover:scale-105 hover:shadow-md'
+                  }`}
+                >
+                  <Icon className={`text-lg ${isActive ? 'text-indigo-600' : 'text-indigo-200'}`} />
+                  <span className="flex-1">{item.label}</span>
+                  {isActive && <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>}
+                </button>
+              );
+            })}
+          </nav>
+
+          {/* User Info */}
+          <div className="p-5 border-t border-indigo-600 bg-indigo-800">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 bg-yellow-400 rounded-full flex items-center justify-center text-indigo-900 font-bold text-xl shadow-lg">
+                AB
+              </div>
+              <div className="flex-1">
+                <p className="font-bold text-lg">{currentUser.name}</p>
+                <p className="text-xs opacity-90">ID: {currentUser.id}</p>
+                <p className="text-xs opacity-80 flex items-center gap-1">
+                  <FaClock className="text-xs" /> {currentUser.lastLogin}
+                </p>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        {/* Overlay for mobile */}
+        {sidebarOpen && (
+          <div 
+            className="fixed inset-0  bg-opacity-50 z-30 lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
 
         {/* Main Content */}
-        <main className="flex-1 pt-16 lg:pt-20 p-4 sm:p-6 lg:p-8 overflow-auto">
-          {renderContent()}
+        <main className="flex-1 overflow-auto lg:ml-0">
+          <header className="bg-white shadow-md p-6 border-b border-gray-200 sticky top-0 z-20">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">{getActiveLabel()}</h1>
+                <p className="text-indigo-600 mt-1 text-sm sm:text-base">Web-Based Kebele Management System • Group 4</p>
+              </div>
+              <div className="text-right">
+                <p className="text-sm text-gray-600">
+                  {currentTime.toLocaleDateString('en-GB', { 
+                    day: 'numeric', 
+                    month: 'long', 
+                    year: 'numeric' 
+                  })}
+                </p>
+                <p className="text-lg font-semibold text-indigo-700 flex items-center justify-end gap-2">
+                  <FaClock /> {formatTime(currentTime)}
+                </p>
+                <p className="text-sm text-green-600 font-bold mt-1">Defense Ready</p>
+              </div>
+            </div>
+          </header>
+
+          <div className="p-4 sm:p-6 space-y-6 lg:space-y-8">
+            {/* ROUTES */}
+            <Routes>
+              <Route path="/" element={<RecordOfficerOverview />} />
+              <Route path="/register-resident" element={<RegisterResident />} />
+              <Route path="/register-house" element={<RegisterHouse />} />
+              <Route path="/generate-report" element={<GenerateReport />} />
+              <Route path="/data-management" element={<DataManagement />} />
+              <Route path="/profile" element={<Profile />} />
+            </Routes>
+          </div>
         </main>
       </div>
-    </div>
+
+      {/* Print Styles */}
+      <style jsx>{`
+        @media print {
+          @page { margin: 1cm; }
+          body, html { -webkit-print-color-adjust: exact; }
+          .lg\\:hidden, .fixed, .z-50, .z-40, .z-30, .z-20 { display: none !important; }
+          .flex { display: block !important; }
+          .p-6 { padding: 0.5cm !important; }
+          .bg-gradient-to-br { background: white !important; }
+          .shadow-md, .shadow-lg, .shadow-xl { box-shadow: none !important; }
+          .rounded-xl { border-radius: 0 !important; }
+          .border { border: 1px solid #ccc !important; }
+          .text-indigo-600 { color: #000 !important; }
+        }
+      `}</style>
+    </>
   );
 }
 
