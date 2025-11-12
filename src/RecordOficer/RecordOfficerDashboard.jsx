@@ -72,26 +72,26 @@ function RecordOfficerDashboard() {
 
   return (
     <>
-      <div className="flex min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-green-50">
+      <div className="flex h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-green-50 overflow-hidden">
         {/* Mobile Sidebar Toggle */}
         <div className="lg:hidden fixed top-4 left-4 z-50">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-3 bg-white rounded-xl shadow-lg text-indigo-700 hover:bg-indigo-50 transition-all"
+            className="p-3 bg-white rounded-xl shadow-lg text-green-700 hover:bg-green-50 transition-all"
           >
             {sidebarOpen ? <FaTimes className="text-xl" /> : <FaBars className="text-xl" />}
           </button>
         </div>
 
-        {/* Sidebar */}
-        <aside className={`fixed lg:static inset-y-0 left-0 z-40 w-72 bg-gradient-to-b from-indigo-800 via-indigo-700 to-indigo-900 text-white transform transition-transform duration-300 ease-in-out ${
+        {/* Sidebar - Fixed and non-scrollable - Updated to green color scheme */}
+        <aside className={`fixed lg:static inset-y-0 left-0 z-40 w-72 bg-gradient-to-b from-green-700 via-green-600 to-green-800 text-white transform transition-transform duration-300 ease-in-out ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         } flex flex-col shadow-2xl`}>
-          <div className="p-6 border-b border-indigo-600">
+          <div className="p-6 border-b border-green-600 flex-shrink-0">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-yellow-400 rounded-xl">
-                  <FaDatabase className="text-indigo-900 text-xl" />
+                  <FaDatabase className="text-green-900 text-xl" />
                 </div>
                 <div>
                   <h2 className="text-xl font-bold">ወልዲያ ኬበሌ</h2>
@@ -117,11 +117,11 @@ function RecordOfficerDashboard() {
                   onClick={() => handleNavigation(item.path)}
                   className={`w-full flex items-center gap-3 p-4 rounded-xl transition-all duration-200 font-medium text-left ${
                     isActive 
-                      ? 'bg-white text-indigo-800 shadow-lg scale-105' 
-                      : 'hover:bg-indigo-600 hover:scale-105 hover:shadow-md'
+                      ? 'bg-white text-green-800 shadow-lg scale-105' 
+                      : 'hover:bg-green-600 hover:scale-105 hover:shadow-md'
                   }`}
                 >
-                  <Icon className={`text-lg ${isActive ? 'text-indigo-600' : 'text-indigo-200'}`} />
+                  <Icon className={`text-lg ${isActive ? 'text-green-600' : 'text-green-200'}`} />
                   <span className="flex-1">{item.label}</span>
                   {isActive && <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>}
                 </button>
@@ -129,10 +129,10 @@ function RecordOfficerDashboard() {
             })}
           </nav>
 
-          {/* User Info */}
-          <div className="p-5 border-t border-indigo-600 bg-indigo-800">
+          {/* User Info - Fixed at bottom */}
+          <div className="p-5 border-t border-green-600 bg-green-700 flex-shrink-0">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 bg-yellow-400 rounded-full flex items-center justify-center text-indigo-900 font-bold text-xl shadow-lg">
+              <div className="w-14 h-14 bg-yellow-400 rounded-full flex items-center justify-center text-green-900 font-bold text-xl shadow-lg">
                 AB
               </div>
               <div className="flex-1">
@@ -149,18 +149,19 @@ function RecordOfficerDashboard() {
         {/* Overlay for mobile */}
         {sidebarOpen && (
           <div 
-            className="fixed inset-0  bg-opacity-50 z-30 lg:hidden"
+            className="fixed inset-0 bg-opacity-50 z-30 lg:hidden"
             onClick={() => setSidebarOpen(false)}
           />
         )}
 
-        {/* Main Content */}
-        <main className="flex-1 overflow-auto lg:ml-0">
-          <header className="bg-white shadow-md p-6 border-b border-gray-200 sticky top-0 z-20">
+        {/* Main Content Area */}
+        <div className="flex-1 flex flex-col min-w-0">
+          {/* Header - Fixed and non-scrollable */}
+          <header className="bg-white shadow-md p-6 border-b border-gray-200 sticky top-0 z-20 flex-shrink-0">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
               <div>
                 <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">{getActiveLabel()}</h1>
-                <p className="text-indigo-600 mt-1 text-sm sm:text-base">Web-Based Kebele Management System • Group 4</p>
+                <p className="text-green-600 mt-1 text-sm sm:text-base">Web-Based Kebele Management System • Group 4</p>
               </div>
               <div className="text-right">
                 <p className="text-sm text-gray-600">
@@ -170,7 +171,7 @@ function RecordOfficerDashboard() {
                     year: 'numeric' 
                   })}
                 </p>
-                <p className="text-lg font-semibold text-indigo-700 flex items-center justify-end gap-2">
+                <p className="text-lg font-semibold text-green-700 flex items-center justify-end gap-2">
                   <FaClock /> {formatTime(currentTime)}
                 </p>
                 <p className="text-sm text-green-600 font-bold mt-1">Defense Ready</p>
@@ -178,18 +179,21 @@ function RecordOfficerDashboard() {
             </div>
           </header>
 
-          <div className="p-4 sm:p-6 space-y-6 lg:space-y-8">
-            {/* ROUTES */}
-            <Routes>
-              <Route path="/" element={<RecordOfficerOverview />} />
-              <Route path="/register-resident" element={<RegisterResident />} />
-              <Route path="/register-house" element={<RegisterHouse />} />
-              <Route path="/generate-report" element={<GenerateReport />} />
-              <Route path="/data-management" element={<DataManagement />} />
-              <Route path="/profile" element={<Profile />} />
-            </Routes>
-          </div>
-        </main>
+          {/* Scrollable Dashboard Content */}
+          <main className="flex-1 overflow-auto">
+            <div className="p-4 sm:p-6 space-y-6 lg:space-y-8">
+              {/* ROUTES */}
+              <Routes>
+                <Route path="/" element={<RecordOfficerOverview />} />
+                <Route path="/register-resident" element={<RegisterResident />} />
+                <Route path="/register-house" element={<RegisterHouse />} />
+                <Route path="/generate-report" element={<GenerateReport />} />
+                <Route path="/data-management" element={<DataManagement />} />
+                <Route path="/profile" element={<Profile />} />
+              </Routes>
+            </div>
+          </main>
+        </div>
       </div>
 
       {/* Print Styles */}
@@ -204,7 +208,7 @@ function RecordOfficerDashboard() {
           .shadow-md, .shadow-lg, .shadow-xl { box-shadow: none !important; }
           .rounded-xl { border-radius: 0 !important; }
           .border { border: 1px solid #ccc !important; }
-          .text-indigo-600 { color: #000 !important; }
+          .text-green-600 { color: #000 !important; }
         }
       `}</style>
     </>

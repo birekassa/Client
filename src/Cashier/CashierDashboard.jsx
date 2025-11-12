@@ -54,7 +54,7 @@ function CashierDashboard() {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 overflow-hidden">
       {/* Mobile Menu Button */}
       <button
         onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -63,13 +63,13 @@ function CashierDashboard() {
         {sidebarOpen ? <FaTimes className="text-xl" /> : <FaBars className="text-xl" />}
       </button>
 
-      {/* Sidebar */}
+      {/* Sidebar - Fixed and non-scrollable */}
       <aside
         className={`fixed lg:static inset-y-0 left-0 z-40 w-64 bg-gradient-to-b from-green-700 to-green-900 text-white shadow-2xl flex flex-col transform transition-transform duration-300 ease-in-out ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >
-        <div className="p-6 border-b border-green-600">
+        <div className="p-6 border-b border-green-600 flex-shrink-0">
           <h2 className="text-xl sm:text-2xl font-bold flex items-center gap-2 sm:gap-3">
             <FaMoneyBillWave className="text-yellow-300 text-lg sm:text-xl" />
             Woldia Kebele
@@ -100,8 +100,8 @@ function CashierDashboard() {
           })}
         </nav>
 
-        {/* User Info */}
-        <div className="p-4 sm:p-5 border-t border-green-600 bg-green-800">
+        {/* User Info - Fixed at bottom */}
+        <div className="p-4 sm:p-5 border-t border-green-600 bg-green-800 flex-shrink-0">
           <div className="flex items-center gap-3 sm:gap-4">
             <div className="w-10 h-10 sm:w-12 sm:h-12 bg-yellow-400 rounded-full flex items-center justify-center text-green-900 font-bold text-sm sm:text-xl">
               AB
@@ -127,9 +127,10 @@ function CashierDashboard() {
         />
       )}
 
-      {/* Main Content */}
-      <main className="flex-1 overflow-auto lg:ml-0 ml-0">
-        <header className="bg-white shadow-md p-4 sm:p-6 border-b border-gray-200">
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Header - Fixed and non-scrollable */}
+        <header className="bg-white shadow-md p-4 sm:p-6 border-b border-gray-200 sticky top-0 z-20 flex-shrink-0">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
             <div>
               <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">{getActiveLabel()}</h1>
@@ -142,18 +143,21 @@ function CashierDashboard() {
           </div>
         </header>
 
-        <div className="p-4 sm:p-6 space-y-6 sm:space-y-8">
-          {/* ROUTES */}
-          <Routes>
-            <Route path="/" element={<CashierOverview />} />
-            <Route path="/payment-processing" element={<PaymentProcessing />} />
-            <Route path="/financial-reports" element={<FinancialReports />} />
-            <Route path="/receipt-management" element={<ReceiptManagement />} />
-            <Route path="/payment-types" element={<PaymentTypes />} />
-            <Route path="/profile" element={<Profile />} />
-          </Routes>
-        </div>
-      </main>
+        {/* Scrollable Dashboard Content */}
+        <main className="flex-1 overflow-auto">
+          <div className="p-4 sm:p-6 space-y-6 sm:space-y-8">
+            {/* ROUTES */}
+            <Routes>
+              <Route path="/" element={<CashierOverview />} />
+              <Route path="/payment-processing" element={<PaymentProcessing />} />
+              <Route path="/financial-reports" element={<FinancialReports />} />
+              <Route path="/receipt-management" element={<ReceiptManagement />} />
+              <Route path="/payment-types" element={<PaymentTypes />} />
+              <Route path="/profile" element={<Profile />} />
+            </Routes>
+          </div>
+        </main>
+      </div>
     </div>
   );
 }
