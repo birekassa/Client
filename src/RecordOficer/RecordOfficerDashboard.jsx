@@ -9,6 +9,7 @@ import {
 // ALL SUB-COMPONENTS
 import RecordOfficerOverview from "./RecordOfficerOverview";
 import RegisterResident from "./RegisterResident";
+import VerifyCertificates from "./VerifyCertificates.jsx";
 import RegisterHouse from "./RegisterHouse";
 import GenerateReport from "./GenerateReport";
 import DataManagement from "./DataManagement";
@@ -31,6 +32,7 @@ function RecordOfficerDashboard() {
     { id: "overview", label: "አጠቃላይ እይታ", icon: FaTachometerAlt, path: "/record-officer" },
     { id: "register-resident", label: "ነዋሪ መመዝገብ", icon: FaUserPlus, path: "/record-officer/register-resident" },
     { id: "register-house", label: "ቤት መመዝገብ", icon: FaHome, path: "/record-officer/register-house" },
+    { id: "verify-certificates", label: "ነዋሪዎች እይታ", icon: FaUsers, path: "/record-officer/verify-certificates" },
     { id: "generate-report", label: "ሪፖርት ማመንጨት", icon: FaChartBar, path: "/record-officer/generate-report" },
     { id: "data-management", label: "ዳታ ማኔጅመንት", icon: FaDatabase, path: "/record-officer/data-management" },
     { id: "profile", label: "የእኔ ፕሮፋይል", icon: FaUserCircle, path: "/record-officer/profile" },
@@ -186,6 +188,7 @@ function RecordOfficerDashboard() {
               <Routes>
                 <Route path="/" element={<RecordOfficerOverview />} />
                 <Route path="/register-resident" element={<RegisterResident />} />
+                <Route path="/verify-certificates" element={<VerifyCertificates />} />
                 <Route path="/register-house" element={<RegisterHouse />} />
                 <Route path="/generate-report" element={<GenerateReport />} />
                 <Route path="/data-management" element={<DataManagement />} />
