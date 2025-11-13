@@ -3,12 +3,14 @@ import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import {
   FaUsers, FaHome, FaFileAlt, FaExclamationTriangle, FaCheckCircle, FaClock,
-  FaArrowUp, FaArrowDown, FaEye, FaPrint, FaPlus, FaChartLine
+  FaArrowUp, FaArrowDown, FaEye, FaPrint, FaPlus, FaChartLine,
+  FaCertificate
 } from 'react-icons/fa';
 import {
   BarChart, Bar, LineChart, Line, PieChart, Pie, AreaChart, Area,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell
 } from 'recharts';
+import CertificateOverview from './certificate/CertificateOverview';
 
 const RecordOfficerOverview = ({ setActive }) => {
   const now = new Date();
@@ -24,6 +26,13 @@ const RecordOfficerOverview = ({ setActive }) => {
     growthHouses: 1.2
   });
 
+  const [certificateStats, setCertificateStats] = useState({
+    total: 156,
+    verified: 120,
+    pending: 25,
+    rejected: 11
+  });
+
   const [populationTrendData, setPopulationTrendData] = useState([]);
   const [houseRegistrationData, setHouseRegistrationData] = useState([]);
   const [populationDistributionData, setPopulationDistributionData] = useState([]);
@@ -31,12 +40,13 @@ const RecordOfficerOverview = ({ setActive }) => {
   const [monthlyActivityData, setMonthlyActivityData] = useState([]);
   const [recentActivities, setRecentActivities] = useState([]);
   const [recentRegistrations, setRecentRegistrations] = useState([]);
+  const [showCertificateOverview, setShowCertificateOverview] = useState(false);
 
   const quickActions = [
     { id: 1, title: 'Register New Person', icon: FaUsers, color: 'bg-blue-500', action: () => setActive('Register Population') },
     { id: 2, title: 'Register New House', icon: FaHome, color: 'bg-green-500', action: () => setActive('Register Houses') },
-    { id: 3, title: 'Generate Report', icon: FaFileAlt, color: 'bg-purple-500', action: () => setActive('Generate Reports') },
-    { id: 4, title: 'View Statistics', icon: FaChartLine, color: 'bg-orange-500', action: () => setActive('Generate Reports') }
+    { id: 3, title: 'Manage Certificates', icon: FaCertificate, color: 'bg-purple-500', action: () => setActive('Verify Certificates') },
+    { id: 4, title: 'Generate Report', icon: FaFileAlt, color: 'bg-orange-500', action: () => setActive('Generate Reports') }
   ];
 
   useEffect(() => {
@@ -91,16 +101,16 @@ const RecordOfficerOverview = ({ setActive }) => {
 
     setRecentActivities([
       { id: 1, type: 'registration', message: 'New population registration completed', time: '2 min ago', status: 'completed', icon: FaCheckCircle, color: 'text-green-500' },
-      { id: 2, type: 'house', message: 'House registration requires verification', time: '15 min ago', status: 'pending', icon: FaClock, color: 'text-yellow-500' },
-      { id: 3, type: 'report', message: 'Monthly report generated', time: '1 hr ago', status: 'completed', icon: FaFileAlt, color: 'text-blue-500' },
-      { id: 4, type: 'alert', message: '3 pending registrations', time: '2 hrs ago', status: 'warning', icon: FaExclamationTriangle, color: 'text-red-500' }
+      { id: 2, type: 'certificate', message: 'Birth certificate prepared for new resident', time: '15 min ago', status: 'completed', icon: FaCertificate, color: 'text-purple-500' },
+      { id: 3, type: 'house', message: 'House registration requires verification', time: '1 hr ago', status: 'pending', icon: FaClock, color: 'text-yellow-500' },
+      { id: 4, type: 'certificate', message: '3 certificate verifications pending', time: '2 hrs ago', status: 'warning', icon: FaExclamationTriangle, color: 'text-red-500' }
     ]);
 
     setRecentRegistrations([
       { id: "REG-2025-0123", name: "AGUMAS BIRHANU", kebeleId: "KB1304903", type: "Population", date: "2025-11-11", status: "Completed" },
-      { id: "REG-2025-0122", name: "MOGES BEYENE", kebeleId: "KB146903", type: "House", date: "2025-11-11", status: "Pending" },
+      { id: "CERT-2025-0456", name: "New Birth Certificate", kebeleId: "BC-2025-001", type: "Certificate", date: "2025-11-11", status: "Pending" },
       { id: "REG-2025-0121", name: "YESHIWAS SOLOMON", kebeleId: "KB149996", type: "Population", date: "2025-11-10", status: "Completed" },
-      { id: "REG-2025-0120", name: "ZEWORK AKLILU", kebeleId: "KB149343", type: "House", date: "2025-11-10", status: "Completed" }
+      { id: "CERT-2025-0455", name: "Marriage Certificate", kebeleId: "MC-2025-002", type: "Certificate", date: "2025-11-10", status: "Verified" }
     ]);
   }, [setActive]);
 
@@ -134,10 +144,11 @@ const RecordOfficerOverview = ({ setActive }) => {
         th { background: #dbeafe; }
         .status-completed { background: #d1fae5; color: #065f46; }
         .status-pending { background: #fef3c7; color: #92400e; }
+        .status-verified { background: #dbeafe; color: #1e40af; }
       </style></head><body>
       <div class="header">
         <h1>WOLDIA KEBELE ADMINISTRATION</h1>
-        <h2>REGISTRATION REPORT</h2>
+        <h2>COMPREHENSIVE REPORT</h2>
         <p><strong>Date:</strong> ${today} | <strong>Time:</strong> ${time} EAT</p>
         <p><strong>Generated by:</strong> AGUMAS BIRHANU • Record Officer • WDU1304903</p>
       </div>
@@ -163,22 +174,6 @@ const RecordOfficerOverview = ({ setActive }) => {
 
   return (
     <div className="space-y-8 p-6 bg-gray-50 min-h-screen">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-indigo-600 to-indigo-800 text-white rounded-xl shadow-2xl p-8">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-          <div>
-            <h1 className="text-4xl font-bold">Record Officer Dashboard</h1>
-            <p className="text-indigo-100 mt-2 text-lg">Woldia Kebele Administration</p>
-            <p className="text-sm opacity-90">Today: {today} • {time} EAT</p>
-          </div>
-          <div className="text-right">
-            <p className="text-lg">Welcome back,</p>
-            <p className="text-3xl font-bold">AGUMAS BIRHANU</p>
-            <p className="text-sm opacity-90">Record Officer • WDU1304903</p>
-          </div>
-        </div>
-      </div>
-
       {/* CASHIER-STYLE CARDS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl p-6 shadow-xl hover:scale-105 transition">
@@ -207,27 +202,49 @@ const RecordOfficerOverview = ({ setActive }) => {
           </div>
         </div>
 
-        <div className="bg-gradient-to-r from-yellow-500 to-orange-600 text-white rounded-xl p-6 shadow-xl hover:scale-105 transition">
+        <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl p-6 shadow-xl hover:scale-105 transition">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-lg opacity-90">Pending Registrations</p>
-              <p className="text-4xl font-bold mt-2">{stats.pendingRegistrations}</p>
+              <p className="text-lg opacity-90">Total Certificates</p>
+              <p className="text-4xl font-bold mt-2">{certificateStats.total.toLocaleString()}</p>
+              <p className="text-sm mt-3 opacity-80">Birth & Marriage</p>
+            </div>
+            <FaCertificate className="text-6xl opacity-30" />
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-xl p-6 shadow-xl hover:scale-105 transition">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-lg opacity-90">Pending Actions</p>
+              <p className="text-4xl font-bold mt-2">{stats.pendingRegistrations + certificateStats.pending}</p>
               <p className="text-sm mt-3 opacity-80">Need Review</p>
             </div>
             <FaExclamationTriangle className="text-6xl opacity-30" />
           </div>
         </div>
+      </div>
 
-        <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl p-6 shadow-xl hover:scale-105 transition">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-lg opacity-90">Reports Generated</p>
-              <p className="text-4xl font-bold mt-2">{stats.completedReports}</p>
-              <p className="text-sm mt-3 opacity-80">This Month</p>
-            </div>
-            <FaFileAlt className="text-6xl opacity-30" />
+      {/* Certificate Overview Section */}
+      <div className="bg-white rounded-xl shadow-lg border border-gray-200">
+        <div className="p-6 border-b border-gray-200 flex justify-between items-center">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-800">Certificate Management Overview</h2>
+            <p className="text-gray-600 mt-1">Birth and Marriage Certificate Statistics</p>
           </div>
+          <button 
+            onClick={() => setShowCertificateOverview(!showCertificateOverview)}
+            className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+          >
+            {showCertificateOverview ? 'Hide' : 'Show'} Certificate Details
+          </button>
         </div>
+        
+        {showCertificateOverview && (
+          <div className="p-6">
+            <CertificateOverview stats={certificateStats} />
+          </div>
+        )}
       </div>
 
       {/* Charts Grid */}
@@ -306,8 +323,8 @@ const RecordOfficerOverview = ({ setActive }) => {
       <div className="bg-white rounded-xl shadow-lg border border-gray-200">
         <div className="p-6 border-b border-gray-200 flex justify-between items-center">
           <div>
-            <h3 className="text-xl font-bold">Recent Registrations</h3>
-            <p className="text-sm text-gray-600 mt-1">Last 4 entries • Verified by Kebele ID</p>
+            <h3 className="text-xl font-bold">Recent Activities & Registrations</h3>
+            <p className="text-sm text-gray-600 mt-1">Last 4 entries • Population, Houses & Certificates</p>
           </div>
           <button onClick={handlePrint} className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
             <FaPrint /> Print Report
@@ -318,7 +335,7 @@ const RecordOfficerOverview = ({ setActive }) => {
             <table className="min-w-full">
               <thead>
                 <tr className="text-left text-xs font-medium text-gray-500 uppercase border-b">
-                  <th className="pb-3">Reg ID</th>
+                  <th className="pb-3">ID</th>
                   <th className="pb-3">Name</th>
                   <th className="pb-3">Kebele ID</th>
                   <th className="pb-3">Type</th>
@@ -333,17 +350,29 @@ const RecordOfficerOverview = ({ setActive }) => {
                     <td className="py-4 text-sm font-bold text-indigo-700">{r.id}</td>
                     <td className="py-4 text-sm">{r.name}</td>
                     <td className="py-4 text-sm text-gray-600 font-mono">{r.kebeleId}</td>
-                    <td className="py-4 text-sm">{r.type}</td>
+                    <td className="py-4">
+                      <span className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${
+                        r.type === 'Certificate' ? 'bg-purple-100 text-purple-800' :
+                        r.type === 'Population' ? 'bg-blue-100 text-blue-800' :
+                        'bg-green-100 text-green-800'
+                      }`}>
+                        {r.type}
+                      </span>
+                    </td>
                     <td className="py-4 text-sm">{r.date}</td>
                     <td className="py-4">
                       <span className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${
-                        r.status === 'Completed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                        r.status === 'Completed' ? 'bg-green-100 text-green-800' :
+                        r.status === 'Verified' ? 'bg-blue-100 text-blue-800' :
+                        'bg-yellow-100 text-yellow-800'
                       }`}>
                         {r.status}
                       </span>
                     </td>
                     <td className="py-4 text-center">
-                      <button className="p-2 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg"><FaEye /></button>
+                      <button className="p-2 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg">
+                        <FaEye />
+                      </button>
                     </td>
                   </tr>
                 ))}

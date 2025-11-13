@@ -45,22 +45,6 @@ const ChairmanOverview = () => {
 
   return (
     <div className="space-y-8 p-6 bg-gray-50 min-h-screen">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-purple-600 to-purple-800 text-white rounded-xl shadow-2xl p-8">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-          <div>
-            <h1 className="text-4xl font-bold">Chairman Dashboard</h1>
-            <div className="text-purple-100 mt-2 text-lg">Woldia Kebele Administration</div>
-            <div className="text-sm opacity-90">Document Issuance & Administrative Oversight</div>
-          </div>
-          <div className="text-right">
-            <div className="text-lg">Welcome,</div>
-            <div className="text-3xl font-bold">AGUMAS BIRHANU</div>
-            <div className="text-sm opacity-90">Chairman • WDU1304903</div>
-          </div>
-        </div>
-      </div>
-
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Pending ID Cards */}

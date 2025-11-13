@@ -137,22 +137,7 @@ const CashierOverview = () => {
 
   return (
     <div className="space-y-8 p-6 bg-gray-50 min-h-screen">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-green-600 to-green-800 text-white rounded-xl shadow-2xl p-8">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-          <div>
-            <h1 className="text-4xl font-bold">Cashier Dashboard</h1>
-            <p className="text-green-100 mt-2 text-lg">Woldia Kebele Administration</p>
-            <p className="text-sm opacity-90">Today: {today} • {time} EAT</p>
-          </div>
-          <div className="text-right">
-            <p className="text-lg">Welcome back,</p>
-            <p className="text-3xl font-bold">AGUMAS BIRHANU</p>
-            <p className="text-sm opacity-90">Cashier • WDU1304903</p>
-          </div>
-        </div>
-      </div>
-
+     
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl p-6 shadow-xl hover:scale-105 transition">
