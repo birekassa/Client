@@ -8,15 +8,15 @@ function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  // 🟢 Static user data
-  const users = {
-    chairman: { password: "chairman", role: "chairman", path: "/chairman" },
-    recordofficer: { password: "record", role: "recordOfficer", path: "/record-officer" },
-    admin: { password: "admin", role: "admin", path: "/admin" },
-    casher: { password: "casher", role: "cashier", path: "/cashier" },
-    socialJustice: { password: "socialJustice", role: "socialJustice", path: "/social-justice" },
-    kebeleCounci: { password: "kebeleCounci", role: "kebeleCouncil", path: "/kebele-council" },
-  };
+
+const users = {
+  chairman: { password: "chairman", role: "chairman", path: "/chairman" },
+  recordofficer: { password: "record", role: "recordOfficer", path: "/record-officer" },
+  admin: { password: "admin", role: "admin", path: "/admin" },
+  casher: { password: "casher", role: "cashier", path: "/cashier" },
+  socialJustice: { password: "socialJustice", role: "socialJustice", path: "/social-justice" },
+  kebeleCouncil: { password: "kebeleCounci", role: "kebeleCouncil", path: "/kebele-council" }, // Fixed the key name
+};
 
   // ✅ Fixed: Safe CSS animation insertion
   useEffect(() => {
@@ -207,7 +207,14 @@ function Login() {
                   <div style={styles.credential}>user: <code>recordofficer</code></div>
                   <div style={styles.credential}>pass: <code>record</code></div>
                 </div>
+                  <div style={styles.userCard}>
+                  <strong style={styles.userRole}>Kebele Council</strong>
+                  <div style={styles.credential}>user: <code>kebeleCouncil</code></div>
+                  <div style={styles.credential}>pass: <code>kebeleCounci</code></div>
+                </div>
+                
               </div>
+              
             </div>
           </div>
         </div>

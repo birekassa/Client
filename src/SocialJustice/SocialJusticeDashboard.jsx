@@ -1,113 +1,132 @@
-import React, { useState } from "react";
+// src/SocialJustice/SocialJusticeDashboard.jsx
+import React, { useState, useEffect } from 'react';
+import Sidebar from "./Sidebar";
+import Header from "./Header";
+import MainContent from "./MainContent";
 
-function SocialJusticeDashboard() {
-  const [active, setActive] = useState("Home");
+const SocialJusticeDashboard = () => {
+  const [active, setActive] = useState("Overview");
+  const [user, setUser] = useState({
+    name: "Council Member",
+    role: "council",
+    email: "council.member@justice.gov.et",
+    phone: "+251 91 234 5678"
+  });
+  const [darkMode, setDarkMode] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const menuItems = [
-    "Home",
-    "Verify Cases",
-    "Write Letters",
-    "Reports",
-    "Settings",
-    "Logout",
-  ];
+  // Check screen size on mount and resize
+  useEffect(() => {
+    const checkScreenSize = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (!mobile) {
+        setSidebarOpen(false);
+      }
+    };
+
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+    
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
+
+  const handleLogout = () => {
+    if (window.confirm('Are you sure you want to logout?')) {
+      alert("You have been logged out successfully!");
+    }
+  };
+
+  const handleProfileChange = () => {
+    const newName = prompt("Enter your name:", user.name);
+    if (newName) {
+      setUser(prev => ({ ...prev, name: newName }));
+      alert("Profile updated successfully!");
+    }
+  };
+
+  const handleThemeChange = (isDarkMode) => {
+    setDarkMode(isDarkMode);
+    localStorage.setItem('darkMode', isDarkMode);
+  };
+
+  const handleCaseSubmit = (caseData) => {
+    console.log('Case submitted:', caseData);
+    setActive("Verify Cases");
+    // Close sidebar on mobile after navigation
+    if (isMobile) setSidebarOpen(false);
+  };
+
+  const handleVerificationComplete = () => {
+    console.log('Verification completed');
+    setActive("Confirmation");
+    // Close sidebar on mobile after navigation
+    if (isMobile) setSidebarOpen(false);
+  };
+
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
+
+  const handleNavigation = (section) => {
+    setActive(section);
+    // Close sidebar on mobile after navigation
+    if (isMobile) setSidebarOpen(false);
+  };
 
   return (
-    <div style={styles.container}>
-      {/* 🟦 Sidebar */}
-      <aside style={styles.sidebar}>
-        <h2 style={styles.logo}>⚖️ Social Justice</h2>
-        <nav>
-          {menuItems.map((item) => (
-            <div
-              key={item}
-              style={{
-                ...styles.menuItem,
-                backgroundColor: active === item ? "#6f42c1" : "transparent",
-                color: active === item ? "#fff" : "#333",
-              }}
-              onClick={() => setActive(item)}
-            >
-              {item}
-            </div>
-          ))}
-        </nav>
-      </aside>
-
-      {/* 🟩 Main Content */}
-      <main style={styles.main}>
-        <header style={styles.header}>
-          <h1>{active}</h1>
-        </header>
-
-        <section style={styles.content}>
-          {active === "Home" && (
-            <p>
-              Welcome Social Justice Council! Manage community cases and communicate decisions.
-            </p>
-          )}
-          {active === "Verify Cases" && (
-            <p>Review and verify community cases submitted for consideration.</p>
-          )}
-          {active === "Write Letters" && (
-            <p>Prepare official letters to inform the concerned individuals.</p>
-          )}
-          {active === "Reports" && (
-            <p>View reports on cases and council activities.</p>
-          )}
-          {active === "Settings" && (
-            <p>Update your profile and system preferences here.</p>
-          )}
-          {active === "Logout" && (
-            <p>You have logged out successfully. (Add redirect logic later.)</p>
-          )}
-        </section>
-      </main>
+    <div className={`flex min-h-screen transition-colors duration-200 bg-white relative`}>
+      {/* Mobile Overlay */}
+      {isMobile && sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-20"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+      
+      {/* Sidebar - Responsive behavior */}
+      <div className={`
+        flex-shrink-0 
+        transition-transform duration-300 ease-in-out
+        ${isMobile 
+          ? `fixed left-0 top-0 h-full z-30 transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`
+          : 'relative'
+        }
+      `}>
+        <Sidebar 
+          active={active}
+          setActive={handleNavigation}
+          user={user}
+          onLogout={handleLogout}
+          isMobile={isMobile}
+          onClose={() => setSidebarOpen(false)}
+        />
+      </div>
+      
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col bg-white min-w-0">
+        <Header 
+          active={active}
+          user={user}
+          onProfileChange={handleProfileChange}
+          onLogout={handleLogout}
+          onThemeChange={handleThemeChange}
+          isMobile={isMobile}
+          onMenuToggle={toggleSidebar}
+          sidebarOpen={sidebarOpen}
+        />
+        
+        <MainContent 
+          active={active}
+          user={user}
+          onCaseSubmit={handleCaseSubmit}
+          onVerificationComplete={handleVerificationComplete}
+          isMobile={isMobile}
+        />
+      </div>
     </div>
   );
-}
-
-// 🎨 Styles
-const styles = {
-  container: {
-    display: "flex",
-    minHeight: "100vh",
-    backgroundColor: "#f5f6fa",
-  },
-  sidebar: {
-    width: "250px",
-    backgroundColor: "#fff",
-    boxShadow: "2px 0 5px rgba(0,0,0,0.1)",
-    padding: "20px 10px",
-  },
-  logo: {
-    textAlign: "center",
-    fontSize: "1.5rem",
-    color: "#6f42c1",
-    marginBottom: "30px",
-  },
-  menuItem: {
-    padding: "12px 20px",
-    marginBottom: "8px",
-    borderRadius: "8px",
-    cursor: "pointer",
-    transition: "background 0.3s, color 0.3s",
-  },
-  main: {
-    flex: 1,
-    padding: "20px 30px",
-  },
-  header: {
-    borderBottom: "2px solid #e0e0e0",
-    paddingBottom: "10px",
-    marginBottom: "20px",
-  },
-  content: {
-    backgroundColor: "#fff",
-    padding: "20px",
-    borderRadius: "12px",
-    boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
-  },
 };
 
 export default SocialJusticeDashboard;

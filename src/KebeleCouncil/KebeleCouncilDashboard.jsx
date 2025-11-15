@@ -1,107 +1,137 @@
 import React, { useState } from "react";
+import Sidebar from "./Sidebar";
+import Header from "./Header";
+import EvaluatePerformance from "./EvaluatePerformance";
+import ReviewReports from "./ReviewReports";
+import Settings from "./Settings";
+import Overview from "./Overview";
+import CertificateManagement from "./CertificateManagement";
 
 function KebeleCouncilDashboard() {
-  const [active, setActive] = useState("Home");
+  const [active, setActive] = useState("Overview");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isLoggedOut, setIsLoggedOut] = useState(false);
 
   const menuItems = [
-    "Home",
+    "Overview",
     "Evaluate Performance",
     "Review Reports",
+    "Certificate Management",
     "Settings",
     "Logout",
   ];
 
-  return (
-    <div style={styles.container}>
-      {/* 🟦 Sidebar */}
-      <aside style={styles.sidebar}>
-        <h2 style={styles.logo}>🏘️ Kebele Council</h2>
-        <nav>
-          {menuItems.map((item) => (
-            <div
-              key={item}
-              style={{
-                ...styles.menuItem,
-                backgroundColor: active === item ? "#28a745" : "transparent",
-                color: active === item ? "#fff" : "#333",
-              }}
-              onClick={() => setActive(item)}
-            >
-              {item}
+  const handleLogout = () => {
+    setIsLoggedOut(true);
+    setTimeout(() => {
+      window.location.href = '/login';
+    }, 2000);
+  };
+
+  const handleItemClick = (item) => {
+    if (item === "Logout") {
+      handleLogout();
+    } else {
+      setActive(item);
+    }
+    if (setSidebarOpen) {
+      setSidebarOpen(false);
+    }
+  };
+
+  const renderContent = () => {
+    if (isLoggedOut) {
+      return (
+        <div className="flex flex-col items-center justify-center py-12">
+          <div className="text-center max-w-md">
+            <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
+              <span className="text-3xl">🚪</span>
             </div>
-          ))}
-        </nav>
-      </aside>
+            
+            <h2 className="text-2xl font-bold text-gray-800 mb-3">Logging Out...</h2>
+            
+            <p className="text-gray-600 mb-6">
+              You are being logged out of the Kebele Council Dashboard. 
+              Redirecting to login page...
+            </p>
 
-      {/* 🟩 Main Content */}
-      <main style={styles.main}>
-        <header style={styles.header}>
-          <h1>{active}</h1>
-        </header>
+            <div className="flex justify-center mb-6">
+              <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+            </div>
 
-        <section style={styles.content}>
-          {active === "Home" && (
-            <p>Welcome! Monitor kebele activities and oversee reports efficiently.</p>
-          )}
-          {active === "Evaluate Performance" && (
-            <p>Check the performance of kebele activities and members here.</p>
-          )}
-          {active === "Review Reports" && (
-            <p>View and analyze reports submitted by various departments.</p>
-          )}
-          {active === "Settings" && (
-            <p>Update your council preferences and account settings here.</p>
-          )}
-          {active === "Logout" && (
-            <p>You have logged out successfully. (Add redirect logic later.)</p>
-          )}
-        </section>
-      </main>
+            <p className="text-gray-500 text-sm">
+              Please wait while we secure your session.
+            </p>
+          </div>
+        </div>
+      );
+    }
+
+    switch (active) {
+      case "Overview":
+        return <Overview />;
+      case "Evaluate Performance":
+        return <EvaluatePerformance />;
+      case "Review Reports":
+        return <ReviewReports />;
+      case "Certificate Management":
+        return <CertificateManagement />;
+      case "Settings":
+        return <Settings />;
+      default:
+        return <Overview />;
+    }
+  };
+
+  return (
+    <div className="flex h-screen bg-gray-50">
+      {/* Sidebar for desktop */}
+      <div className="hidden lg:flex">
+        <Sidebar 
+          active={active} 
+          handleItemClick={handleItemClick} 
+          menuItems={menuItems}
+          sidebarOpen={sidebarOpen}
+        />
+      </div>
+
+      {/* Mobile sidebar overlay */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        >
+          <div 
+            className="fixed inset-y-0 left-0 z-50 w-64"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Sidebar 
+              active={active} 
+              handleItemClick={handleItemClick} 
+              menuItems={menuItems}
+              sidebarOpen={sidebarOpen}
+              setSidebarOpen={setSidebarOpen}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Main content */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <Header 
+          active={active} 
+          setSidebarOpen={setSidebarOpen}
+          handleLogout={handleLogout}
+        />
+        
+        <main className="flex-1 overflow-y-auto p-4 lg:p-6">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 lg:p-6">
+            {renderContent()}
+          </div>
+        </main>
+      </div>
     </div>
   );
 }
-
-// 🎨 Styles
-const styles = {
-  container: {
-    display: "flex",
-    minHeight: "100vh",
-    backgroundColor: "#f5f6fa",
-  },
-  sidebar: {
-    width: "250px",
-    backgroundColor: "#fff",
-    boxShadow: "2px 0 5px rgba(0,0,0,0.1)",
-    padding: "20px 10px",
-  },
-  logo: {
-    textAlign: "center",
-    fontSize: "1.5rem",
-    color: "#28a745",
-    marginBottom: "30px",
-  },
-  menuItem: {
-    padding: "12px 20px",
-    marginBottom: "8px",
-    borderRadius: "8px",
-    cursor: "pointer",
-    transition: "background 0.3s, color 0.3s",
-  },
-  main: {
-    flex: 1,
-    padding: "20px 30px",
-  },
-  header: {
-    borderBottom: "2px solid #e0e0e0",
-    paddingBottom: "10px",
-    marginBottom: "20px",
-  },
-  content: {
-    backgroundColor: "#fff",
-    padding: "20px",
-    borderRadius: "12px",
-    boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
-  },
-};
 
 export default KebeleCouncilDashboard;
