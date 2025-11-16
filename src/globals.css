@@ -1,0 +1,168 @@
+/* Theme CSS Variables */
+:root {
+  /* Primary colors */
+  --theme-primary: #2563eb;
+  --theme-primaryLight: #3b82f6;
+  --theme-primaryDark: #1d4ed8;
+  
+  /* Secondary colors */
+  --theme-secondary: #64748b;
+  --theme-secondaryLight: #94a3b8;
+  --theme-secondaryDark: #475569;
+  
+  /* Background colors */
+  --theme-background: #ffffff;
+  --theme-surface: #f8fafc;
+  --theme-card: #ffffff;
+  
+  /* Text colors */
+  --theme-textPrimary: #1f2937;
+  --theme-textSecondary: #6b7280;
+  --theme-textInverted: #ffffff;
+  
+  /* Status colors */
+  --theme-success: #059669;
+  --theme-warning: #d97706;
+  --theme-error: #dc2626;
+  --theme-info: #0369a1;
+  
+  /* Border colors */
+  --theme-border: #e5e7eb;
+  --theme-borderLight: #f1f5f9;
+  --theme-borderDark: #d1d5db;
+  
+  /* Sidebar specific */
+  --theme-sidebarBg: #1e3a8a;
+  --theme-sidebarText: #ffffff;
+  --theme-sidebarHover: #1e40af;
+  --theme-sidebarActive: #3b82f6;
+  
+  /* Header specific */
+  --theme-headerBg: #ffffff;
+  --theme-headerText: #1f2937;
+  --theme-headerBorder: #e5e7eb;
+  
+  /* Component specific */
+  --theme-buttonPrimary: #2563eb;
+  --theme-buttonSecondary: #64748b;
+  --theme-buttonSuccess: #059669;
+  --theme-buttonWarning: #d97706;
+  --theme-buttonError: #dc2626;
+  
+  /* Additional theme properties */
+  --theme-borderRadius: 8px;
+  --theme-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  --theme-shadowLarge: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+/* Theme-aware utility classes */
+.theme-bg-primary { background-color: var(--theme-primary) !important; }
+.theme-bg-secondary { background-color: var(--theme-secondary) !important; }
+.theme-bg-success { background-color: var(--theme-success) !important; }
+.theme-bg-warning { background-color: var(--theme-warning) !important; }
+.theme-bg-error { background-color: var(--theme-error) !important; }
+.theme-bg-info { background-color: var(--theme-info) !important; }
+
+.theme-text-primary { color: var(--theme-textPrimary) !important; }
+.theme-text-secondary { color: var(--theme-textSecondary) !important; }
+.theme-text-inverted { color: var(--theme-textInverted) !important; }
+
+.theme-border { border-color: var(--theme-border) !important; }
+.theme-border-light { border-color: var(--theme-borderLight) !important; }
+.theme-border-dark { border-color: var(--theme-borderDark) !important; }
+
+/* Sidebar specific classes */
+.theme-sidebar {
+  background: linear-gradient(135deg, var(--theme-sidebarBg) 0%, color-mix(in srgb, var(--theme-sidebarBg) 80%, black) 100%) !important;
+  color: var(--theme-sidebarText) !important;
+}
+
+.theme-sidebar-item {
+  color: var(--theme-sidebarText) !important;
+  transition: all 0.3s ease !important;
+}
+
+.theme-sidebar-item:hover {
+  background-color: var(--theme-sidebarHover) !important;
+  color: var(--theme-sidebarText) !important;
+}
+
+.theme-sidebar-item.active {
+  background-color: var(--theme-sidebarActive) !important;
+  color: var(--theme-sidebarText) !important;
+  border-left: 4px solid var(--theme-primary) !important;
+}
+
+/* Header specific classes */
+.theme-header {
+  background-color: var(--theme-headerBg) !important;
+  color: var(--theme-headerText) !important;
+  border-bottom-color: var(--theme-headerBorder) !important;
+}
+
+/* Button classes */
+.theme-btn {
+  border-radius: var(--theme-borderRadius) !important;
+  transition: all 0.3s ease !important;
+}
+
+.theme-btn-primary {
+  background-color: var(--theme-buttonPrimary) !important;
+  color: var(--theme-textInverted) !important;
+}
+
+.theme-btn-secondary {
+  background-color: var(--theme-buttonSecondary) !important;
+  color: var(--theme-textInverted) !important;
+}
+
+.theme-btn-success {
+  background-color: var(--theme-buttonSuccess) !important;
+  color: var(--theme-textInverted) !important;
+}
+
+.theme-btn-warning {
+  background-color: var(--theme-buttonWarning) !important;
+  color: var(--theme-textInverted) !important;
+}
+
+.theme-btn-error {
+  background-color: var(--theme-buttonError) !important;
+  color: var(--theme-textInverted) !important;
+}
+
+/* Card classes */
+.theme-card {
+  background-color: var(--theme-card) !important;
+  border-color: var(--theme-border) !important;
+  border-radius: var(--theme-borderRadius) !important;
+  box-shadow: var(--theme-shadow) !important;
+}
+
+.theme-card:hover {
+  box-shadow: var(--theme-shadowLarge) !important;
+}
+
+/* Input classes */
+.theme-input {
+  background-color: var(--theme-surface) !important;
+  border-color: var(--theme-border) !important;
+  color: var(--theme-textPrimary) !important;
+  border-radius: var(--theme-borderRadius) !important;
+}
+
+.theme-input:focus {
+  border-color: var(--theme-primary) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--theme-primary) 20%, transparent) !important;
+}
+
+/* Smooth transitions for theme changes */
+* {
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease !important;
+}
+
+/* Ensure body uses theme colors */
+body {
+  background-color: var(--theme-background) !important;
+  color: var(--theme-textPrimary) !important;
+}

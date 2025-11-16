@@ -8,14 +8,13 @@ function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  // 🟢 Static user data
   const users = {
     chairman: { password: "chairman", role: "chairman", path: "/chairman" },
     recordofficer: { password: "record", role: "recordOfficer", path: "/record-officer" },
     admin: { password: "admin", role: "admin", path: "/admin" },
-    casher: { password: "casher", role: "cashier", path: "/cashier" },
+    cashier: { password: "cashier", role: "cashier", path: "/cashier" }, // Fixed from "casher"
     socialJustice: { password: "socialJustice", role: "socialJustice", path: "/social-justice" },
-    kebeleCounci: { password: "kebeleCounci", role: "kebeleCouncil", path: "/kebele-council" },
+    kebeleCouncil: { password: "kebeleCouncil", role: "kebeleCouncil", path: "/kebele-council" }, // Fixed password typo
   };
 
   const handleSubmit = (e) => {
@@ -56,6 +55,11 @@ function Login() {
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
   }, []);
+
+  // Format role name for display
+  const formatRoleName = (role) => {
+    return role.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+  };
 
   return (
     <div className="fixed inset-0 bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 flex items-center justify-center z-50 p-4">
@@ -183,7 +187,7 @@ function Login() {
                     className="bg-blue-50 p-3 rounded-lg border border-blue-200 text-xs leading-relaxed hover:bg-blue-100 transition-colors duration-200"
                   >
                     <strong className="block text-blue-800 text-xs uppercase tracking-wide mb-1">
-                      {user.role.replace(/([A-Z])/g, ' $1').trim()}
+                      {formatRoleName(user.role)}
                     </strong>
                     <div className="font-mono text-xs text-gray-700 mb-1">
                       <span className="text-gray-500">user:</span> <code className="text-blue-700">{key}</code>
