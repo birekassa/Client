@@ -22,6 +22,7 @@ function RecordOfficerDashboard() {
   const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
+    
     const timer = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
@@ -32,7 +33,7 @@ function RecordOfficerDashboard() {
     { id: "overview", label: "አጠቃላይ እይታ", icon: FaTachometerAlt, path: "/record-officer" },
     { id: "register-resident", label: "ነዋሪ መመዝገብ", icon: FaUserPlus, path: "/record-officer/register-resident" },
     { id: "register-house", label: "ቤት መመዝገብ", icon: FaHome, path: "/record-officer/register-house" },
-    { id: "verify-certificates", label: "ነዋሪዎች እይታ", icon: FaUsers, path: "/record-officer/verify-certificates" },
+    { id: "verify-certificates", label: "የምስክር ወረቀት ", icon: FaUsers, path: "/record-officer/verify-certificates" },
     { id: "generate-report", label: "ሪፖርት ማመንጨት", icon: FaChartBar, path: "/record-officer/generate-report" },
     { id: "data-management", label: "ዳታ ማኔጅመንት", icon: FaDatabase, path: "/record-officer/data-management" },
     { id: "profile", label: "የእኔ ፕሮፋይል", icon: FaUserCircle, path: "/record-officer/profile" },
@@ -131,22 +132,6 @@ function RecordOfficerDashboard() {
               );
             })}
           </nav>
-
-          {/* User Info - Fixed at bottom */}
-          <div className="p-5 border-t border-purple-500 bg-blue-700 flex-shrink-0">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center text-blue-700 font-bold text-xl shadow-lg">
-                AB
-              </div>
-              <div className="flex-1">
-                <p className="font-bold text-lg text-white">{currentUser.name}</p>
-                <p className="text-xs text-blue-100 opacity-90">ID: {currentUser.id}</p>
-                <p className="text-xs text-blue-100 opacity-80 flex items-center gap-1">
-                  <FaClock className="text-xs" /> {currentUser.lastLogin}
-                </p>
-              </div>
-            </div>
-          </div>
         </aside>
 
         {/* Overlay for mobile */}

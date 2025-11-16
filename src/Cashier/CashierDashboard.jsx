@@ -76,7 +76,7 @@ function CashierDashboard() {
             </div>
             <div>
               <h2 className="text-xl font-bold">ወልዲያ ኬበሌ</h2>
-              <p className="text-xs opacity-90">Cashier Portal • 2025</p>
+
             </div>
           </div>
         </div>
@@ -103,19 +103,6 @@ function CashierDashboard() {
           })}
         </nav>
 
-        {/* User Info - Fixed at bottom */}
-        <div className="p-5 border-t border-purple-500 bg-blue-700 flex-shrink-0">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center text-blue-700 font-bold text-xl shadow-lg">
-              AB
-            </div>
-            <div className="flex-1">
-              <p className="font-bold text-lg text-white">{currentUser.name}</p>
-              <p className="text-xs text-blue-100 opacity-90">ID: {currentUser.id}</p>
-              <p className="text-xs text-blue-100 opacity-80">Last login: {currentUser.lastLogin}</p>
-            </div>
-          </div>
-        </div>
       </aside>
 
       {/* Overlay for mobile */}

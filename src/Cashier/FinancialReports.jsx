@@ -241,13 +241,6 @@ const FinancialReports = () => {
           </ResponsiveContainer>
         </div>
       </div>
-
-      {/* Footer */}
-      <div className="text-center text-gray-500 text-sm mt-12 pb-8">
-        <p>© 2025 Woldia Kebele Administration | Web-Based Kebele Management System</p>
-        <p>Developed by: AGUMAS BIRHANU, MOGES BEYENE, YESHIWAS SOLOMON, ZEWORK AKLILU</p>
-        <p>Woldia University • School of Computing • Department of Information Technology</p>
-      </div>
     </div>
   );
 };
