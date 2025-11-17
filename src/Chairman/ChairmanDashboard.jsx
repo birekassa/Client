@@ -11,7 +11,6 @@ import {
 import ChairmanOverview from "./ChairmanOverview";
 import PrepareIDCard from "./PrepareIDCard";
 import PrepareClearance from "./PrepareClearance";
-import ViewReports from "./ViewReports";
 
 function ChairmanDashboard() {
   const navigate = useNavigate();
@@ -28,7 +27,6 @@ function ChairmanDashboard() {
     { id: "overview", label: "Overview", icon: FaTachometerAlt, path: "/chairman" },
     { id: "prepare-id", label: "Prepare ID Card", icon: FaIdCard, path: "/chairman/prepare-id" },
     { id: "prepare-clearance", label: "Prepare Clearance", icon: FaFileAlt, path: "/chairman/prepare-clearance" },
-    { id: "reports", label: "Generate Reports", icon: FaChartBar, path: "/chairman/reports" },
     { id: "logout", label: "Signout", icon: FaSignOutAlt, path: "/login" }
   ];
 
@@ -162,7 +160,6 @@ function ChairmanDashboard() {
                 <Route path="/" element={<ChairmanOverview />} />
                 <Route path="/prepare-id" element={<PrepareIDCard />} />
                 <Route path="/prepare-clearance" element={<PrepareClearance />} />
-                <Route path="/reports" element={<ViewReports />} />
               </Routes>
             </div>
           </main>
