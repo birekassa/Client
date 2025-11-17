@@ -1,881 +1,518 @@
-// src/components/cashier/PaymentProcessing.jsx
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+// src/Cashier/PaymentProcessing.jsx
+import React, { useState } from 'react';
+import { format } from 'date-fns';
 import {
-  FaSearch,
-  FaUser,
-  FaMoneyBillWave,
-  FaReceipt,
-  FaPrint,
-  FaEnvelope,
-  FaMobileAlt,
-  FaCreditCard,
-  FaCashRegister,
-  FaCheckCircle,
-  FaSpinner,
-  FaHistory,
-  FaFileInvoiceDollar,
-  FaShieldAlt,
-  FaIdCard,
-  FaCertificate,
-  FaHome,
-  FaFileAlt,
-  FaTimes
+  FaMoneyBillWave, FaReceipt, FaCheckCircle, FaClock,
+  FaSearch, FaFilter, FaPrint, FaDownload, FaUser,
+  FaHome, FaIdCard, FaCalendar, FaDollarSign,
+  FaCreditCard, FaMobile, FaBuilding
 } from 'react-icons/fa';
 
-// Mock data with updated services
-const mockResidents = [
-  {
-    id: 'RES-2024-001',
-    name: 'የሕይወት መስፍን',
-    phone: '+251912345678',
-    email: 'yehywet@email.com',
-    address: 'መንገድ 12, ቤት 45, ወልዲያ',
-    balance: 2500,
-    outstandingPayments: [
-      { id: 'INV-001', type: 'id_card', description: 'የመለያ ካርድ ክፍያ', amount: 150, dueDate: '2024-01-15' },
-      { id: 'INV-002', type: 'birth_certificate', description: 'የልደት ሰርተፊኬት ክፍያ', amount: 200, dueDate: '2024-01-10' },
-      { id: 'INV-003', type: 'house_rent', description: 'የቤት ኪራይ', amount: 1200, dueDate: '2024-01-20' }
-    ],
-    paymentHistory: [
-      { id: 'RCPT-2023-045', date: '2023-12-15', description: 'የንጹህነት ማስረጃ', amount: 300, method: 'cash' },
-      { id: 'RCPT-2023-046', date: '2023-11-20', description: 'የመለያ ካርድ እድሳት', amount: 100, method: 'telebirr' },
-      { id: 'RCPT-2023-047', date: '2023-10-10', description: 'የቤት ኪራይ', amount: 1200, method: 'bank' }
-    ]
-  },
-  {
-    id: 'RES-2024-002',
-    name: 'ሰላም አለማየሁ',
-    phone: '+251911234567',
-    email: 'selam@email.com',
-    address: 'መንገድ 8, ቤት 23, ወልዲያ',
-    balance: 1500,
-    outstandingPayments: [
-      { id: 'INV-004', type: 'marriage_certificate', description: 'የጋብቻ ሰርተፊኬት ክፍያ', amount: 250, dueDate: '2024-01-25' },
-      { id: 'INV-005', type: 'clearance_certificate', description: 'የንጹህነት ማስረጃ ክፍያ', amount: 300, dueDate: '2024-01-18' }
-    ],
-    paymentHistory: [
-      { id: 'RCPT-2023-048', date: '2023-12-10', description: 'የልደት ሰርተፊኬት', amount: 200, method: 'cash' },
-      { id: 'RCPT-2023-049', date: '2023-11-15', description: 'የቤት ኪራይ', amount: 1200, method: 'telebirr' }
-    ]
-  },
-  {
-    id: 'RES-2024-003',
-    name: 'ማርያም ገብረመድህን',
-    phone: '+251913456789',
-    email: 'mariam@email.com',
-    address: 'መንገድ 15, ቤት 67, ወልዲያ',
-    balance: 3200,
-    outstandingPayments: [
-      { id: 'INV-006', type: 'id_card', description: 'የመለያ ካርድ ክፍያ', amount: 150, dueDate: '2024-01-12' },
-      { id: 'INV-007', type: 'other_service', description: 'የቤት ማሻሻያ ፈቃድ', amount: 500, dueDate: '2024-01-18' },
-      { id: 'INV-008', type: 'house_rent', description: 'የቤት ኪራይ', amount: 1200, dueDate: '2024-01-22' }
-    ],
-    paymentHistory: [
-      { id: 'RCPT-2023-050', date: '2023-12-05', description: 'የጋብቻ ሰርተፊኬት', amount: 250, method: 'bank' },
-      { id: 'RCPT-2023-051', date: '2023-11-12', description: 'የንጹህነት ማስረጃ', amount: 300, method: 'cash' },
-      { id: 'RCPT-2023-052', date: '2023-10-20', description: 'የቤት ኪራይ', amount: 1200, method: 'telebirr' }
-    ]
-  },
-  {
-    id: 'RES-2024-004',
-    name: 'መንግሥቱ አለማየሁ',
-    phone: '+251914567890',
-    email: 'mengistu@email.com',
-    address: 'መንገድ 5, ቤት 89, ወልዲያ',
-    balance: 800,
-    outstandingPayments: [
-      { id: 'INV-009', type: 'birth_certificate', description: 'የልደት ሰርተፊኬት ክፍያ', amount: 200, dueDate: '2024-01-14' },
-      { id: 'INV-010', type: 'clearance_certificate', description: 'የንጹህነት ማስረጃ ክፍያ', amount: 300, dueDate: '2024-01-28' }
-    ],
-    paymentHistory: [
-      { id: 'RCPT-2023-053', date: '2023-12-20', description: 'የመለያ ካርድ', amount: 150, method: 'telebirr' },
-      { id: 'RCPT-2023-054', date: '2023-11-25', description: 'የቤት ኪራይ', amount: 1200, method: 'cash' }
-    ]
-  }
-];
-
-// Updated payment types with correct services
-const paymentTypes = [
-  { id: 'id_card', name: 'የመለያ ካርድ ክፍያ', category: 'service', icon: FaIdCard, amount: 150 },
-  { id: 'birth_certificate', name: 'የልደት ሰርተፊኬት ክፍያ', category: 'service', icon: FaCertificate, amount: 200 },
-  { id: 'marriage_certificate', name: 'የጋብቻ ሰርተፊኬት ክፍያ', category: 'service', icon: FaCertificate, amount: 250 },
-  { id: 'clearance_certificate', name: 'የንጹህነት ማስረጃ ክፍያ', category: 'service', icon: FaFileAlt, amount: 300 },
-  { id: 'house_rent', name: 'የቤት ኪራይ', category: 'rent', icon: FaHome, amount: 1200 },
-  { id: 'other_service', name: 'ሌሎች አገልግሎቶች', category: 'service', icon: FaFileInvoiceDollar, amount: 0 }
-];
-
-const paymentMethods = [
-  { id: 'cash', name: 'Cash', icon: FaCashRegister, color: 'green' },
-  { id: 'telebirr', name: 'Telebirr', icon: FaMobileAlt, color: 'blue' },
-  { id: 'mpesa', name: 'M-Pesa', icon: FaMobileAlt, color: 'purple' },
-  { id: 'bank', name: 'Bank Transfer', icon: FaCreditCard, color: 'indigo' }
-];
-
 const PaymentProcessing = () => {
-  const [step, setStep] = useState(1);
+  const [activeTab, setActiveTab] = useState('pending');
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedResident, setSelectedResident] = useState(null);
-  const [selectedPayments, setSelectedPayments] = useState([]);
-  const [newService, setNewService] = useState({ type: '', customAmount: '', description: '' });
-  const [paymentMethod, setPaymentMethod] = useState('');
-  const [cashAmount, setCashAmount] = useState('');
-  const [mobileRef, setMobileRef] = useState('');
-  const [bankRef, setBankRef] = useState('');
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [receipt, setReceipt] = useState(null);
-  const [searchResults, setSearchResults] = useState([]);
-  const [showPaymentHistory, setShowPaymentHistory] = useState(false);
+  const [selectedPayment, setSelectedPayment] = useState(null);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
 
-  // Search residents
-  useEffect(() => {
-    if (searchTerm.length > 2) {
-      const results = mockResidents.filter(resident =>
-        resident.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        resident.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        resident.phone.includes(searchTerm)
-      );
-      setSearchResults(results);
-    } else {
-      setSearchResults([]);
+  // Mock data for payment requests from Register Office
+  const [paymentRequests, setPaymentRequests] = useState([
+    {
+      id: 'PAY-001',
+      residentId: 'RES-2025-001',
+      residentName: 'MESERET KEBEDE',
+      nationalId: '1234567890',
+      houseNumber: 'H-124',
+      requestDate: '2024-01-15',
+      paymentDate: '2024-01-16',
+      amount: 250,
+      serviceType: 'New Resident Registration',
+      status: 'pending',
+      requestedBy: 'Record Officer - Alemayehu',
+      contactPhone: '+251-91-777-8888',
+      urgency: 'high',
+      paymentMethod: '',
+      transactionId: '',
+      receiptNumber: ''
+    },
+    {
+      id: 'PAY-002',
+      residentId: 'RES-2025-002',
+      residentName: 'TEWODROS MULATU',
+      nationalId: '0987654321',
+      houseNumber: 'H-089',
+      requestDate: '2024-01-14',
+      paymentDate: '2024-01-16',
+      amount: 150,
+      serviceType: 'Family Registration',
+      status: 'pending',
+      requestedBy: 'Record Officer - Sofia',
+      contactPhone: '+251-92-999-0000',
+      urgency: 'medium',
+      paymentMethod: '',
+      transactionId: '',
+      receiptNumber: ''
+    },
+    {
+      id: 'PAY-003',
+      residentId: 'RES-2025-003',
+      residentName: 'ELENI GIRMA',
+      nationalId: '1122334455',
+      houseNumber: 'H-067',
+      requestDate: '2024-01-13',
+      paymentDate: '2024-01-15',
+      amount: 100,
+      serviceType: 'Student Registration',
+      status: 'completed',
+      requestedBy: 'Record Officer - Daniel',
+      contactPhone: '+251-93-888-7777',
+      urgency: 'low',
+      paymentMethod: 'Cash',
+      transactionId: 'TXN-789012',
+      receiptNumber: 'RC-2025-003'
+    },
+    {
+      id: 'PAY-004',
+      residentId: 'RES-2025-004',
+      residentName: 'ABEBE BIKILA',
+      nationalId: '5566778899',
+      houseNumber: 'H-045',
+      requestDate: '2024-01-16',
+      paymentDate: '2024-01-16',
+      amount: 200,
+      serviceType: 'Business Registration',
+      status: 'processing',
+      requestedBy: 'Record Officer - Hanna',
+      contactPhone: '+251-94-111-2222',
+      urgency: 'high',
+      paymentMethod: 'Bank Transfer',
+      transactionId: 'TXN-345678',
+      receiptNumber: 'RC-2025-004'
     }
-  }, [searchTerm]);
+  ]);
 
-  const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
-  };
+  const [paymentForm, setPaymentForm] = useState({
+    paymentMethod: '',
+    transactionId: '',
+    receiptNumber: '',
+    notes: ''
+  });
 
-  const selectResident = (resident) => {
-    setSelectedResident(resident);
-    setSearchTerm('');
-    setSearchResults([]);
-    setStep(2);
-  };
+  const filteredPayments = paymentRequests.filter(payment => {
+    const matchesSearch = payment.residentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         payment.residentId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         payment.houseNumber.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesTab = activeTab === 'all' ? true : payment.status === activeTab;
+    return matchesSearch && matchesTab;
+  });
 
-  const togglePaymentSelection = (payment) => {
-    setSelectedPayments(prev => {
-      const isSelected = prev.find(p => p.id === payment.id);
-      if (isSelected) {
-        return prev.filter(p => p.id !== payment.id);
-      } else {
-        return [...prev, payment];
-      }
+  const handleProcessPayment = (payment) => {
+    setSelectedPayment(payment);
+    setPaymentForm({
+      paymentMethod: payment.paymentMethod || '',
+      transactionId: payment.transactionId || '',
+      receiptNumber: payment.receiptNumber || '',
+      notes: ''
     });
+    setShowPaymentModal(true);
   };
 
-  const addNewService = () => {
-    if (newService.type && newService.customAmount) {
-      const paymentType = paymentTypes.find(pt => pt.id === newService.type);
-      const newPayment = {
-        id: `NEW-${Date.now()}`,
-        type: newService.type,
-        description: newService.description || paymentType?.name || 'ሌላ አገልግሎት',
-        amount: parseFloat(newService.customAmount),
-        dueDate: new Date().toISOString().split('T')[0],
-        isNew: true
-      };
-      
-      setSelectedPayments(prev => [...prev, newPayment]);
-      setNewService({ type: '', customAmount: '', description: '' });
-    }
-  };
-
-  const removePayment = (paymentId) => {
-    setSelectedPayments(prev => prev.filter(p => p.id !== paymentId));
-  };
-
-  const calculateTotal = () => {
-    return selectedPayments.reduce((total, payment) => total + payment.amount, 0);
-  };
-
-  const handlePayment = async () => {
-    setIsProcessing(true);
+  const handlePaymentSubmit = (e) => {
+    e.preventDefault();
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    const receiptData = {
-      id: `RCPT-${Date.now()}`,
-      date: new Date().toISOString(),
-      resident: selectedResident,
-      payments: selectedPayments,
-      total: calculateTotal(),
-      method: paymentMethod,
-      cashier: {
-        name: 'AGUMAS BIRHANU',
-        id: 'WDU1304903'
-      },
-      reference: paymentMethod === 'cash' ? null : 
-                 paymentMethod === 'telebirr' || paymentMethod === 'mpesa' ? mobileRef : bankRef
+    // Update payment status
+    setPaymentRequests(prev => 
+      prev.map(payment => 
+        payment.id === selectedPayment.id 
+          ? { 
+              ...payment, 
+              status: 'completed',
+              paymentMethod: paymentForm.paymentMethod,
+              transactionId: paymentForm.transactionId,
+              receiptNumber: paymentForm.receiptNumber,
+              paymentDate: format(new Date(), 'yyyy-MM-dd')
+            }
+          : payment
+      )
+    );
+
+    setShowPaymentModal(false);
+    setSelectedPayment(null);
+  };
+
+  const getStatusBadge = (status) => {
+    const styles = {
+      pending: 'bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-800 border-amber-200',
+      processing: 'bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-800 border-blue-200',
+      completed: 'bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border-green-200'
     };
-    
-    setReceipt(receiptData);
-    setIsProcessing(false);
-    setStep(4);
+    return `px-4 py-2 rounded-full text-sm font-semibold border ${styles[status]}`;
   };
 
-  const resetProcess = () => {
-    setStep(1);
-    setSelectedResident(null);
-    setSelectedPayments([]);
-    setNewService({ type: '', customAmount: '', description: '' });
-    setPaymentMethod('');
-    setCashAmount('');
-    setMobileRef('');
-    setBankRef('');
-    setReceipt(null);
-    setShowPaymentHistory(false);
+  const getUrgencyBadge = (urgency) => {
+    const styles = {
+      high: 'bg-gradient-to-r from-red-100 to-pink-100 text-red-800 border-red-200',
+      medium: 'bg-gradient-to-r from-orange-100 to-amber-100 text-orange-800 border-orange-200',
+      low: 'bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border-green-200'
+    };
+    return `px-3 py-1 rounded-full text-xs font-semibold border ${styles[urgency]}`;
   };
 
-  const printReceipt = () => {
-    window.print();
-  };
-
-  const sendEmailReceipt = () => {
-    alert(`Receipt sent to ${selectedResident.email}`);
-  };
-
-  const sendSMSReceipt = () => {
-    alert(`SMS receipt sent to ${selectedResident.phone}`);
+  const stats = {
+    pending: paymentRequests.filter(p => p.status === 'pending').length,
+    processing: paymentRequests.filter(p => p.status === 'processing').length,
+    completed: paymentRequests.filter(p => p.status === 'completed').length,
+    total: paymentRequests.length,
+    totalAmount: paymentRequests.filter(p => p.status === 'completed').reduce((sum, p) => sum + p.amount, 0)
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-800">Payment Processing</h2>
-          <p className="text-gray-600">Process resident payments efficiently and accurately</p>
-        </div>
-        <div className="flex items-center space-x-4">
-          <div className="text-right">
-            <div className="text-sm text-gray-500">Cashier</div>
-            <div className="font-semibold text-blue-600">AGUMAS BIRHANU</div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 mb-8 border border-white/20">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="p-4 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl shadow-lg">
+                <FaMoneyBillWave className="text-white text-2xl" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-800 to-emerald-700 bg-clip-text text-transparent">
+                  የክፍያ ሂደት
+                </h1>
+                <p className="text-gray-600 mt-1 font-medium">Woldia Kebele Administration - Cashier</p>
+              </div>
+            </div>
+            <div className="text-right bg-white/50 rounded-xl p-3 border border-gray-100">
+              <p className="text-sm text-gray-600 font-medium">ቀን: {format(new Date(), 'dd MMMM yyyy')}</p>
+              <p className="text-sm text-gray-600 font-medium">ጊዜ: {format(new Date(), 'hh:mm a')}</p>
+            </div>
+          </div>
+
+          {/* Statistics */}
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mt-8">
+            <div className="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-xl p-4 border border-amber-200/50">
+              <div className="text-2xl font-bold text-amber-600">{stats.pending}</div>
+              <div className="text-sm font-semibold text-amber-700">በጥበቃ</div>
+            </div>
+            <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-4 border border-blue-200/50">
+              <div className="text-2xl font-bold text-blue-600">{stats.processing}</div>
+              <div className="text-sm font-semibold text-blue-700">በሂደት</div>
+            </div>
+            <div className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-xl p-4 border border-emerald-200/50">
+              <div className="text-2xl font-bold text-emerald-600">{stats.completed}</div>
+              <div className="text-sm font-semibold text-emerald-700">የተጠናቀቀ</div>
+            </div>
+            <div className="bg-gradient-to-br from-purple-50 to-violet-50 rounded-xl p-4 border border-purple-200/50">
+              <div className="text-2xl font-bold text-purple-600">{stats.total}</div>
+              <div className="text-sm font-semibold text-purple-700">ጠቅላላ</div>
+            </div>
+            <div className="bg-gradient-to-br from-green-50 to-teal-50 rounded-xl p-4 border border-green-200/50">
+              <div className="text-2xl font-bold text-green-600">${stats.totalAmount}</div>
+              <div className="text-sm font-semibold text-green-700">ጠቅላላ ክፍያ</div>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Progress Steps */}
-      <div className="bg-white rounded-xl p-4 border border-gray-200">
-        <div className="flex items-center justify-between">
-          {[1, 2, 3, 4].map((stepNumber) => (
-            <div key={stepNumber} className="flex items-center">
-              <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${
-                step >= stepNumber 
-                  ? 'bg-blue-600 border-blue-600 text-white' 
-                  : 'border-gray-300 text-gray-400'
-              }`}>
-                {step > stepNumber ? (
-                  <FaCheckCircle className="text-sm" />
-                ) : (
-                  stepNumber
-                )}
-              </div>
-              <span className={`ml-2 font-medium ${
-                step >= stepNumber ? 'text-blue-600' : 'text-gray-400'
-              }`}>
-                {stepNumber === 1 && 'Find Resident'}
-                {stepNumber === 2 && 'Select Services'}
-                {stepNumber === 3 && 'Process Payment'}
-                {stepNumber === 4 && 'Receipt'}
-              </span>
-              {stepNumber < 4 && (
-                <div className={`w-16 h-0.5 mx-4 ${
-                  step > stepNumber ? 'bg-blue-600' : 'bg-gray-300'
-                }`} />
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Step 1: Find Resident */}
-      {step === 1 && (
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="bg-white rounded-xl p-6 border border-gray-200"
-        >
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Find Resident</h3>
-          
-          <div className="relative mb-6">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <FaSearch className="text-gray-400" />
-            </div>
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={handleSearch}
-              placeholder="Search by name, resident ID, or phone number..."
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-
-          <AnimatePresence>
-            {searchResults.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="space-y-3 max-h-96 overflow-y-auto"
-              >
-                {searchResults.map((resident) => (
-                  <motion.div
-                    key={resident.id}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="p-4 border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-colors"
-                    onClick={() => selectResident(resident)}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                          <FaUser className="text-blue-600" />
-                        </div>
-                        <div>
-                          <h4 className="font-semibold text-gray-800">{resident.name}</h4>
-                          <p className="text-sm text-gray-600">ID: {resident.id} • {resident.phone}</p>
-                          <p className="text-xs text-gray-500">{resident.address}</p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-sm text-gray-500">Outstanding</div>
-                        <div className="font-semibold text-red-600">ETB {resident.balance}</div>
-                        <div className="text-xs text-gray-500">
-                          {resident.outstandingPayments.length} pending
-                        </div>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {searchTerm && searchResults.length === 0 && (
-            <div className="text-center py-8 text-gray-500">
-              <FaSearch className="text-3xl mx-auto mb-3 text-gray-300" />
-              <p>No residents found</p>
-              <p className="text-sm">Try different search terms</p>
-            </div>
-          )}
-        </motion.div>
-      )}
-
-      {/* Step 2: Select Services */}
-      {step === 2 && selectedResident && (
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="bg-white rounded-xl p-6 border border-gray-200"
-        >
-          <div className="flex justify-between items-start mb-6">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-800">Select Services</h3>
-              <p className="text-gray-600">for {selectedResident.name}</p>
-            </div>
-            <div className="flex space-x-3">
-              <button
-                onClick={() => setShowPaymentHistory(!showPaymentHistory)}
-                className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                <FaHistory />
-                <span>{showPaymentHistory ? 'Hide History' : 'Show History'}</span>
-              </button>
-              <button
-                onClick={() => setStep(1)}
-                className="text-blue-600 hover:text-blue-700 font-medium"
-              >
-                Change Resident
-              </button>
-            </div>
-          </div>
-
-          {/* Resident Info */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div>
-                <label className="text-sm font-medium text-blue-700">Resident ID</label>
-                <p className="font-semibold">{selectedResident.id}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-blue-700">Phone</label>
-                <p className="font-semibold">{selectedResident.phone}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-blue-700">Outstanding Balance</label>
-                <p className="font-semibold text-red-600">ETB {selectedResident.balance}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-blue-700">Pending Payments</label>
-                <p className="font-semibold">{selectedResident.outstandingPayments.length}</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Payment History */}
-          {showPaymentHistory && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              className="mb-6"
-            >
-              <h4 className="font-semibold text-gray-800 mb-4 flex items-center">
-                <FaHistory className="mr-2 text-blue-500" />
-                Recent Payment History
-              </h4>
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                <div className="space-y-3">
-                  {selectedResident.paymentHistory.map((payment) => (
-                    <div key={payment.id} className="flex justify-between items-center p-3 bg-white rounded-lg border">
-                      <div>
-                        <div className="font-medium text-gray-800">{payment.description}</div>
-                        <div className="text-sm text-gray-600">
-                          {payment.date} • {payment.method}
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="font-semibold text-green-600">ETB {payment.amount}</div>
-                        <div className="text-xs text-gray-500">{payment.id}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </motion.div>
-          )}
-
-          {/* Outstanding Payments */}
-          <div className="space-y-4 mb-6">
-            <h4 className="font-semibold text-gray-800">Outstanding Payments</h4>
-            {selectedResident.outstandingPayments.length > 0 ? (
-              selectedResident.outstandingPayments.map((payment) => {
-                const paymentType = paymentTypes.find(pt => pt.id === payment.type);
-                const Icon = paymentType?.icon || FaFileInvoiceDollar;
-                const isSelected = selectedPayments.find(p => p.id === payment.id);
-                
-                return (
-                  <div
-                    key={payment.id}
-                    onClick={() => togglePaymentSelection(payment)}
-                    className={`p-4 border rounded-lg cursor-pointer transition-all ${
-                      isSelected
-                        ? 'border-blue-500 bg-blue-50'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                          isSelected ? 'bg-blue-100' : 'bg-gray-100'
-                        }`}>
-                          <Icon className={isSelected ? 'text-blue-600' : 'text-gray-400'} />
-                        </div>
-                        <div>
-                          <h5 className="font-medium text-gray-800">{payment.description}</h5>
-                          <p className="text-sm text-gray-600">Due: {payment.dueDate}</p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="font-semibold text-gray-800">ETB {payment.amount}</div>
-                        {isSelected && (
-                          <div className="text-sm text-blue-600 flex items-center">
-                            <FaCheckCircle className="mr-1" /> Selected
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })
-            ) : (
-              <div className="text-center py-8 text-gray-500">
-                <FaCheckCircle className="text-3xl mx-auto mb-3 text-green-400" />
-                <p>No outstanding payments</p>
-                <p className="text-sm">All payments are up to date</p>
-              </div>
-            )}
-          </div>
-
-          {/* Add New Service */}
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-            <h4 className="font-semibold text-gray-800 mb-4">Add New Service</h4>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Service Type
-                </label>
-                <select
-                  value={newService.type}
-                  onChange={(e) => setNewService({...newService, type: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="">Select service...</option>
-                  {paymentTypes.map(type => (
-                    <option key={type.id} value={type.id}>
-                      {type.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Amount (ETB)
-                </label>
-                <input
-                  type="number"
-                  value={newService.customAmount}
-                  onChange={(e) => setNewService({...newService, customAmount: e.target.value})}
-                  placeholder="Enter amount"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Description (Optional)
-                </label>
+        {/* Controls */}
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-6 mb-8 border border-white/20">
+          <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
+            {/* Search */}
+            <div className="flex-1 w-full lg:max-w-md">
+              <div className="relative">
+                <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <input
                   type="text"
-                  value={newService.description}
-                  onChange={(e) => setNewService({...newService, description: e.target.value})}
-                  placeholder="Service description"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="በነዋሪ ስም፣ ቁጥር ወይም ቤት ቁጥር ይፈልጉ..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-12 pr-4 py-3 border-2 border-gray-300 rounded-2xl focus:border-blue-500 focus:ring-4 focus:ring-blue-200 transition-all duration-200"
                 />
               </div>
             </div>
-            <button
-              onClick={addNewService}
-              disabled={!newService.type || !newService.customAmount}
-              className="mt-3 bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Add Service
-            </button>
-          </div>
 
-          {/* Selected Payments Summary */}
-          {selectedPayments.length > 0 && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
-              <h4 className="font-semibold text-gray-800 mb-3">Selected Services</h4>
-              <div className="space-y-2">
-                {selectedPayments.map((payment) => (
-                  <div key={payment.id} className="flex justify-between items-center p-2 bg-white rounded">
-                    <div className="flex items-center space-x-3">
-                      <span className="font-medium text-gray-800">{payment.description}</span>
-                      {payment.isNew && (
-                        <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">New</span>
-                      )}
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <span className="font-semibold text-gray-800">ETB {payment.amount}</span>
-                      <button
-                        onClick={() => removePayment(payment.id)}
-                        className="text-red-500 hover:text-red-700"
-                      >
-                        <FaTimes />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-                <div className="border-t pt-2 mt-2">
-                  <div className="flex justify-between font-semibold text-lg">
-                    <span>Total Amount:</span>
-                    <span className="text-green-700">ETB {calculateTotal()}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Total and Actions */}
-          {selectedPayments.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="p-4 bg-green-50 border border-green-200 rounded-lg"
-            >
-              <div className="flex justify-between items-center">
-                <div>
-                  <div className="text-sm text-green-700">Total Amount</div>
-                  <div className="text-2xl font-bold text-green-800">ETB {calculateTotal()}</div>
-                  <div className="text-sm text-green-600">
-                    {selectedPayments.length} service(s) selected
-                  </div>
-                </div>
+            {/* Tabs */}
+            <div className="flex space-x-2 bg-gradient-to-r from-gray-100 to-blue-100 p-2 rounded-2xl border border-gray-200/50">
+              {[
+                { key: 'pending', label: 'በጥበቃ', icon: FaClock, count: stats.pending },
+                { key: 'processing', label: 'በሂደት', icon: FaReceipt, count: stats.processing },
+                { key: 'completed', label: 'የተጠናቀቀ', icon: FaCheckCircle, count: stats.completed },
+                { key: 'all', label: 'ሁሉም', icon: FaFilter, count: stats.total }
+              ].map((tab) => (
                 <button
-                  onClick={() => setStep(3)}
-                  className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-semibold"
+                  key={tab.key}
+                  onClick={() => setActiveTab(tab.key)}
+                  className={`px-6 py-3 rounded-xl font-semibold transition-all flex items-center gap-2 ${
+                    activeTab === tab.key 
+                      ? "bg-white text-blue-700 shadow-lg border border-blue-200/50 transform scale-105" 
+                      : "text-gray-600 hover:text-gray-800 hover:bg-white/70 hover:scale-105"
+                  }`}
                 >
-                  Proceed to Payment
+                  <tab.icon className={activeTab === tab.key ? 'text-blue-600' : 'text-gray-500'} />
+                  {tab.label}
+                  {tab.count > 0 && (
+                    <span className={`px-2 py-1 rounded-full text-xs font-bold ${
+                      activeTab === tab.key ? 'bg-blue-500 text-white' : 'bg-gray-400 text-white'
+                    }`}>
+                      {tab.count}
+                    </span>
+                  )}
                 </button>
-              </div>
-            </motion.div>
-          )}
-        </motion.div>
-      )}
-
-      {/* Step 3: Process Payment */}
-      {step === 3 && (
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="bg-white rounded-xl p-6 border border-gray-200"
-        >
-          <div className="flex justify-between items-start mb-6">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-800">Process Payment</h3>
-              <p className="text-gray-600">Complete the payment transaction</p>
-            </div>
-            <button
-              onClick={() => setStep(2)}
-              className="text-blue-600 hover:text-blue-700 font-medium"
-            >
-              Back to Services
-            </button>
-          </div>
-
-          {/* Payment Summary */}
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
-            <h4 className="font-semibold text-gray-800 mb-3">Payment Summary</h4>
-            <div className="space-y-2">
-              {selectedPayments.map((payment) => (
-                <div key={payment.id} className="flex justify-between text-sm">
-                  <span>{payment.description}</span>
-                  <span>ETB {payment.amount}</span>
-                </div>
               ))}
-              <div className="border-t pt-2 mt-2">
-                <div className="flex justify-between font-semibold">
-                  <span>Total Amount</span>
-                  <span className="text-lg">ETB {calculateTotal()}</span>
-                </div>
-              </div>
             </div>
           </div>
+        </div>
 
-          {/* Payment Method Selection */}
-          <div className="mb-6">
-            <h4 className="font-semibold text-gray-800 mb-4">Select Payment Method</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {paymentMethods.map((method) => {
-                const Icon = method.icon;
-                const colorMap = {
-                  green: 'border-green-500 bg-green-50 text-green-600',
-                  blue: 'border-blue-500 bg-blue-50 text-blue-600',
-                  purple: 'border-purple-500 bg-purple-50 text-purple-600',
-                  indigo: 'border-indigo-500 bg-indigo-50 text-indigo-600'
-                };
-                
-                return (
-                  <button
-                    key={method.id}
-                    onClick={() => setPaymentMethod(method.id)}
-                    className={`p-4 border-2 rounded-lg text-left transition-all ${
-                      paymentMethod === method.id
-                        ? colorMap[method.color]
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                  >
-                    <Icon className={`text-2xl mb-2`} />
-                    <div className="font-semibold text-gray-800">{method.name}</div>
-                  </button>
-                );
-              })}
+        {/* Payment Requests List */}
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-white/20">
+          <h2 className="text-2xl font-bold text-gray-800 mb-8 flex items-center gap-3">
+            <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg">
+              <FaReceipt className="text-white text-xl" />
             </div>
-          </div>
+            የክፍያ ጥያቄዎች
+          </h2>
 
-          {/* Payment Details */}
-          {paymentMethod && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              className="mb-6"
-            >
-              <h4 className="font-semibold text-gray-800 mb-4">Payment Details</h4>
-              
-              {paymentMethod === 'cash' && (
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Amount Received
-                    </label>
-                    <input
-                      type="number"
-                      value={cashAmount}
-                      onChange={(e) => setCashAmount(e.target.value)}
-                      placeholder="Enter amount received"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
-                  {cashAmount && calculateTotal() > 0 && (
-                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                      <div className="flex justify-between text-sm">
-                        <span>Change to give back:</span>
-                        <span className="font-semibold">
-                          ETB {(parseFloat(cashAmount) - calculateTotal()).toFixed(2)}
+          <div className="space-y-6">
+            {filteredPayments.map((payment) => (
+              <div key={payment.id} className="bg-gradient-to-r from-white to-gray-50/80 rounded-2xl p-6 border border-gray-200/50 hover:border-blue-300/50 hover:shadow-lg transition-all duration-300 group">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="flex-1">
+                        <h3 className="font-bold text-xl text-gray-900 group-hover:text-blue-800 transition-colors">
+                          {payment.residentName}
+                        </h3>
+                        <p className="text-gray-600 text-sm mt-1">{payment.residentId}</p>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className={getStatusBadge(payment.status)}>
+                          {payment.status}
                         </span>
+                        <span className={getUrgencyBadge(payment.urgency)}>
+                          {payment.urgency}
+                        </span>
+                        <div className="text-2xl font-bold text-green-600">
+                          ${payment.amount}
+                        </div>
                       </div>
                     </div>
-                  )}
-                </div>
-              )}
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-4">
+                      <div className="flex items-center gap-3 bg-white/50 rounded-lg p-3 border border-gray-100">
+                        <div className="p-2 bg-blue-100 rounded-lg">
+                          <FaIdCard className="text-blue-600 text-sm" />
+                        </div>
+                        <div>
+                          <div className="text-xs text-gray-500">መታወቂያ</div>
+                          <div className="font-semibold text-gray-800">{payment.nationalId}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 bg-white/50 rounded-lg p-3 border border-gray-100">
+                        <div className="p-2 bg-green-100 rounded-lg">
+                          <FaHome className="text-green-600 text-sm" />
+                        </div>
+                        <div>
+                          <div className="text-xs text-gray-500">ቤት ቁጥር</div>
+                          <div className="font-semibold text-gray-800">{payment.houseNumber}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 bg-white/50 rounded-lg p-3 border border-gray-100">
+                        <div className="p-2 bg-purple-100 rounded-lg">
+                          <FaUser className="text-purple-600 text-sm" />
+                        </div>
+                        <div>
+                          <div className="text-xs text-gray-500">የጠየቀ</div>
+                          <div className="font-semibold text-gray-800">{payment.requestedBy}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 bg-white/50 rounded-lg p-3 border border-gray-100">
+                        <div className="p-2 bg-orange-100 rounded-lg">
+                          <FaCalendar className="text-orange-600 text-sm" />
+                        </div>
+                        <div>
+                          <div className="text-xs text-gray-500">ቀን</div>
+                          <div className="font-semibold text-gray-800">{payment.requestDate}</div>
+                        </div>
+                      </div>
+                    </div>
 
-              {(paymentMethod === 'telebirr' || paymentMethod === 'mpesa') && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Transaction Reference Number
-                  </label>
-                  <input
-                    type="text"
-                    value={mobileRef}
-                    onChange={(e) => setMobileRef(e.target.value)}
-                    placeholder="Enter transaction reference"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-              )}
+                    <div className="bg-blue-50/50 rounded-xl p-4 border border-blue-100">
+                      <p className="text-sm font-semibold text-blue-800 mb-2">የአገልግሎት አይነት</p>
+                      <p className="text-gray-700 font-medium">{payment.serviceType}</p>
+                    </div>
 
-              {paymentMethod === 'bank' && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Bank Reference Number
-                  </label>
-                  <input
-                    type="text"
-                    value={bankRef}
-                    onChange={(e) => setBankRef(e.target.value)}
-                    placeholder="Enter bank reference number"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-              )}
+                    {payment.status === 'completed' && (
+                      <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="bg-green-50/50 rounded-lg p-3 border border-green-200">
+                          <div className="text-xs text-green-600 font-semibold">የክፍያ ዘዴ</div>
+                          <div className="font-medium text-green-800">{payment.paymentMethod}</div>
+                        </div>
+                        <div className="bg-green-50/50 rounded-lg p-3 border border-green-200">
+                          <div className="text-xs text-green-600 font-semibold">የትራንዛክሽን ቁጥር</div>
+                          <div className="font-medium text-green-800">{payment.transactionId}</div>
+                        </div>
+                        <div className="bg-green-50/50 rounded-lg p-3 border border-green-200">
+                          <div className="text-xs text-green-600 font-semibold">የራሲት ቁጥር</div>
+                          <div className="font-medium text-green-800">{payment.receiptNumber}</div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
 
-              <button
-                onClick={handlePayment}
-                disabled={isProcessing || 
-                  (paymentMethod === 'cash' && (!cashAmount || parseFloat(cashAmount) < calculateTotal())) ||
-                  ((paymentMethod === 'telebirr' || paymentMethod === 'mpesa') && !mobileRef) ||
-                  (paymentMethod === 'bank' && !bankRef)
-                }
-                className="w-full mt-4 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-              >
-                {isProcessing ? (
-                  <>
-                    <FaSpinner className="animate-spin mr-2" />
-                    Processing Payment...
-                  </>
-                ) : (
-                  `Complete Payment - ETB ${calculateTotal()}`
-                )}
-              </button>
-            </motion.div>
+                  <div className="flex flex-col gap-3 ml-6">
+                    {payment.status === 'pending' && (
+                      <button
+                        onClick={() => handleProcessPayment(payment)}
+                        className="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 flex items-center gap-3 group"
+                      >
+                        <FaMoneyBillWave className="group-hover:scale-110 transition-transform" />
+                        ክፍያ ተቀበል
+                      </button>
+                    )}
+                    {payment.status === 'processing' && (
+                      <span className="px-6 py-3 bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 rounded-xl font-semibold border border-blue-300 text-center">
+                        በሂደት ላይ...
+                      </span>
+                    )}
+                    {payment.status === 'completed' && (
+                      <div className="flex flex-col gap-2">
+                        <span className="px-6 py-3 bg-gradient-to-r from-green-100 to-emerald-200 text-green-800 rounded-xl font-semibold border border-green-300 text-center">
+                          ተጠናቅቋል ✓
+                        </span>
+                        <button className="px-4 py-2 bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-800 rounded-lg font-semibold border border-blue-200 hover:shadow-lg transition-all duration-200 flex items-center gap-2">
+                          <FaPrint />
+                          ራሲት
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {filteredPayments.length === 0 && (
+            <div className="text-center py-16 bg-gradient-to-br from-gray-50 to-blue-50/30 rounded-2xl border-2 border-dashed border-gray-300">
+              <FaReceipt className="mx-auto text-5xl text-gray-300 mb-4" />
+              <div className="text-xl font-bold text-gray-700 mb-2">ምንም የክፍያ ጥያቄዎች የሉም</div>
+              <p className="text-gray-500">የክፍያ ጥያቄዎች ከምዝገባ ቢሮ እዚህ ይታያሉ</p>
+            </div>
           )}
-        </motion.div>
-      )}
+        </div>
+      </div>
 
-      {/* Step 4: Receipt */}
-      {step === 4 && receipt && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="bg-white rounded-xl p-6 border border-gray-200"
-        >
-          <div className="text-center mb-6">
-            <FaCheckCircle className="text-4xl text-green-500 mx-auto mb-3" />
-            <h3 className="text-2xl font-bold text-gray-800">Payment Successful!</h3>
-            <p className="text-gray-600">Transaction completed successfully</p>
-          </div>
-
-          {/* Receipt */}
-          <div className="bg-gray-50 border-2 border-gray-300 rounded-lg p-6 mb-6 print:border-2 print:border-black">
-            <div className="text-center mb-4">
-              <h4 className="text-lg font-bold text-gray-800">OFFICIAL RECEIPT</h4>
-              <p className="text-sm text-gray-600">ወልዲያ ኬበሌ</p>
-              <p className="text-xs text-gray-500">Woldia Kebele Administration</p>
+      {/* Payment Modal */}
+      {showPaymentModal && selectedPayment && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="bg-gradient-to-r from-green-600 to-emerald-600 rounded-t-2xl p-6 text-white">
+              <h2 className="text-2xl font-bold flex items-center gap-3">
+                <FaMoneyBillWave />
+                ክፍያ ተቀበል
+              </h2>
+              <p className="text-green-100 mt-1">{selectedPayment.residentName} - {selectedPayment.serviceType}</p>
             </div>
-            
-            <div className="space-y-3 text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Receipt No:</span>
-                <span className="font-semibold">{receipt.id}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Date:</span>
-                <span>{new Date(receipt.date).toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Resident:</span>
-                <span className="font-semibold">{receipt.resident.name}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Resident ID:</span>
-                <span>{receipt.resident.id}</span>
-              </div>
-              
-              <div className="border-t pt-2 mt-2">
-                <div className="font-semibold mb-2">Payment Details:</div>
-                {receipt.payments.map((payment) => (
-                  <div key={payment.id} className="flex justify-between text-sm">
-                    <span>{payment.description}</span>
-                    <span>ETB {payment.amount}</span>
-                  </div>
-                ))}
-              </div>
-              
-              <div className="border-t pt-2">
-                <div className="flex justify-between font-semibold">
-                  <span>Total Paid:</span>
-                  <span className="text-lg">ETB {receipt.total}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Payment Method:</span>
-                  <span className="capitalize">{receipt.method}</span>
-                </div>
-                {receipt.reference && (
-                  <div className="flex justify-between">
-                    <span>Reference:</span>
-                    <span className="font-mono">{receipt.reference}</span>
-                  </div>
-                )}
-              </div>
-              
-              <div className="border-t pt-2 text-center">
-                <p className="text-xs text-gray-500">Cashier: {receipt.cashier.name} ({receipt.cashier.id})</p>
-                <p className="text-xs text-gray-500">Thank you for your payment!</p>
-                <p className="text-xs text-gray-400 mt-2">This is an official receipt from Woldia Kebele</p>
-              </div>
-            </div>
-          </div>
 
-          {/* Receipt Actions */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <button
-              onClick={printReceipt}
-              className="bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold flex items-center justify-center"
-            >
-              <FaPrint className="mr-2" />
-              Print Receipt
-            </button>
-            <button
-              onClick={sendEmailReceipt}
-              className="bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors font-semibold flex items-center justify-center"
-            >
-              <FaEnvelope className="mr-2" />
-              Email Receipt
-            </button>
-            <button
-              onClick={sendSMSReceipt}
-              className="bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition-colors font-semibold flex items-center justify-center"
-            >
-              <FaMobileAlt className="mr-2" />
-              SMS Receipt
-            </button>
-            <button
-              onClick={resetProcess}
-              className="bg-gray-600 text-white py-3 rounded-lg hover:bg-gray-700 transition-colors font-semibold"
-            >
-              + Add Payment
-            </button>
+            <form onSubmit={handlePaymentSubmit} className="p-6 space-y-6">
+              {/* Payment Details */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-gray-50 rounded-xl p-4">
+                  <div className="text-sm text-gray-600">ጠቅላላ መጠን</div>
+                  <div className="text-3xl font-bold text-green-600">${selectedPayment.amount}</div>
+                </div>
+                <div className="bg-gray-50 rounded-xl p-4">
+                  <div className="text-sm text-gray-600">የአገልግሎት አይነት</div>
+                  <div className="text-lg font-semibold text-gray-800">{selectedPayment.serviceType}</div>
+                </div>
+              </div>
+
+              {/* Payment Method */}
+              <div>
+                <label className="flex items-center gap-2 text-sm font-bold text-gray-700 mb-3">
+                  <FaCreditCard className="text-blue-600" />
+                  የክፍያ ዘዴ *
+                </label>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {['Cash', 'Bank Transfer', 'Mobile Money', 'Credit Card'].map((method) => (
+                    <button
+                      key={method}
+                      type="button"
+                      onClick={() => setPaymentForm(prev => ({ ...prev, paymentMethod: method }))}
+                      className={`p-3 border-2 rounded-xl font-semibold transition-all duration-200 ${
+                        paymentForm.paymentMethod === method
+                          ? 'border-green-500 bg-green-50 text-green-700'
+                          : 'border-gray-300 hover:border-blue-400 hover:bg-blue-50'
+                      }`}
+                    >
+                      {method}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Transaction Details */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                    የትራንዛክሽን ቁጥር
+                  </label>
+                  <input
+                    type="text"
+                    value={paymentForm.transactionId}
+                    onChange={(e) => setPaymentForm(prev => ({ ...prev, transactionId: e.target.value }))}
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
+                    placeholder="TXN-123456"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                    የራሲት ቁጥር *
+                  </label>
+                  <input
+                    type="text"
+                    value={paymentForm.receiptNumber}
+                    onChange={(e) => setPaymentForm(prev => ({ ...prev, receiptNumber: e.target.value }))}
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
+                    placeholder="RC-2025-001"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Notes */}
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">
+                  ማስታወሻ
+                </label>
+                <textarea
+                  value={paymentForm.notes}
+                  onChange={(e) => setPaymentForm(prev => ({ ...prev, notes: e.target.value }))}
+                  rows="3"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
+                  placeholder="ማንኛውም ተጨማሪ መረጃ..."
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-4 pt-6 border-t">
+                <button
+                  type="button"
+                  onClick={() => setShowPaymentModal(false)}
+                  className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-all duration-200"
+                >
+                  ይቅር
+                </button>
+                <button
+                  type="submit"
+                  disabled={!paymentForm.paymentMethod || !paymentForm.receiptNumber}
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2"
+                >
+                  <FaCheckCircle />
+                  ክፍያ አረጋግጥ
+                </button>
+              </div>
+            </form>
           </div>
-        </motion.div>
+        </div>
       )}
     </div>
   );

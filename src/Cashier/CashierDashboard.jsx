@@ -9,9 +9,6 @@ import {
 // ALL COMPONENTS
 import CashierOverview from "./CashierOverview";
 import PaymentProcessing from "./PaymentProcessing";
-import FinancialReports from "./FinancialReports";
-import ReceiptManagement from "./ReceiptManagement";
-import PaymentTypes from "./PaymentTypes";
 import Profile from "./Profile";
 
 function CashierDashboard() {
@@ -22,9 +19,6 @@ function CashierDashboard() {
   const menuItems = [
     { id: "Overview", label: "Overview", icon: FaTachometerAlt, path: "/cashier" },
     { id: "payment-processing", label: "Payment Processing", icon: FaMoneyBillWave, path: "/cashier/payment-processing" },
-    { id: "receipt-management", label: "Receipt Management", icon: FaReceipt, path: "/cashier/receipt-management" },
-    { id: "financial-reports", label: "Financial Reports", icon: FaFileInvoiceDollar, path: "/cashier/financial-reports" },
-    { id: "payment-types", label: "Payment Types", icon: FaCreditCard, path: "/cashier/payment-types" },
     { id: "profile", label: "My Profile", icon: FaUserCircle, path: "/cashier/profile" },
     { id: "logout", label: "Sign Out", icon: FaSignOutAlt, path: "/login" }
   ];
@@ -153,9 +147,6 @@ function CashierDashboard() {
             <Routes>
               <Route path="/" element={<CashierOverview />} />
               <Route path="/payment-processing" element={<PaymentProcessing />} />
-              <Route path="/financial-reports" element={<FinancialReports />} />
-              <Route path="/receipt-management" element={<ReceiptManagement />} />
-              <Route path="/payment-types" element={<PaymentTypes />} />
               <Route path="/profile" element={<Profile />} />
             </Routes>
           </div>

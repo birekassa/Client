@@ -31,7 +31,7 @@ function RecordOfficerDashboard() {
 
   const menuItems = [
     { id: "overview", label: "አጠቃላይ እይታ", icon: FaTachometerAlt, path: "/record-officer" },
-    { id: "register-resident", label: "ነዋሪ መመዝገብ", icon: FaUserPlus, path: "/record-officer/register-resident" },
+    { id: "register-resident", label: "መታወቂያ ለመስጣት ", icon: FaUserPlus, path: "/record-officer/register-resident" },
     { id: "register-house", label: "ቤት መመዝገብ", icon: FaHome, path: "/record-officer/register-house" },
     { id: "verify-certificates", label: "የምስክር ወረቀት ", icon: FaUsers, path: "/record-officer/verify-certificates" },
     { id: "generate-report", label: "ሪፖርት ማመንጨት", icon: FaChartBar, path: "/record-officer/generate-report" },
