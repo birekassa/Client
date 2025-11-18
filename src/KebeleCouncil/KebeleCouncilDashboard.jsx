@@ -2,10 +2,8 @@ import React, { useState } from "react";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import EvaluatePerformance from "./EvaluatePerformance";
-import ReviewReports from "./ReviewReports";
 import Settings from "./Settings";
 import Overview from "./Overview";
-import CertificateManagement from "./CertificateManagement";
 
 function KebeleCouncilDashboard() {
   const [active, setActive] = useState("Overview");
@@ -15,8 +13,6 @@ function KebeleCouncilDashboard() {
   const menuItems = [
     "Overview",
     "Evaluate Performance",
-    "Review Reports",
-    "Certificate Management",
     "Settings",
     "Logout",
   ];
@@ -72,10 +68,6 @@ function KebeleCouncilDashboard() {
         return <Overview />;
       case "Evaluate Performance":
         return <EvaluatePerformance />;
-      case "Review Reports":
-        return <ReviewReports />;
-      case "Certificate Management":
-        return <CertificateManagement />;
       case "Settings":
         return <Settings />;
       default:

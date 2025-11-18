@@ -12,10 +12,6 @@ const Sidebar = ({ active, handleItemClick, menuItems, sidebarOpen, setSidebarOp
         return "📊";
       case "Evaluate Performance":
         return "⭐";
-      case "Review Reports":
-        return "📋";
-      case "Certificate Management":
-        return "📜";
       case "Settings":
         return "⚙️";
       case "Logout":
@@ -30,8 +26,6 @@ const Sidebar = ({ active, handleItemClick, menuItems, sidebarOpen, setSidebarOp
     switch(originalItem) {
       case "Overview": return t.overview;
       case "Evaluate Performance": return t.evaluatePerformance;
-      case "Review Reports": return t.reviewReports;
-      case "Certificate Management": return t.certificateManagement;
       case "Settings": return t.settings;
       case "Logout": return t.logout;
       default: return originalItem;

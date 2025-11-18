@@ -1,258 +1,447 @@
 // src/Chairman/PrepareClearance.jsx
-import React, { useState, useRef } from "react";
-import { FaCamera, FaUser, FaPaperPlane } from "react-icons/fa";
+import React, { useState, useRef } from 'react';
 
 const PrepareIDCard = () => {
-  const [formData, setFormData] = useState({
-    fullName: "",
-    photo: null,
-    photoPreview: null
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showCamera, setShowCamera] = useState(false);
-  
+  const [fullName, setFullName] = useState('');
+  const [capturedImage, setCapturedImage] = useState(null);
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
-  const [stream, setStream] = useState(null);
+  const [isCameraActive, setIsCameraActive] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [isCapturing, setIsCapturing] = useState(false);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+  // Validation function
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!fullName.trim()) {
+      newErrors.fullName = 'Full name is required';
+    } else if (fullName.trim().length < 2) {
+      newErrors.fullName = 'Full name must be at least 2 characters';
+    }
+    
+    if (!capturedImage) {
+      newErrors.capturedImage = 'Photo capture is required';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    
+    if (validateForm()) {
+      // Logic to send request to record officer
+      console.log('Sending request to record officer...', {
+        fullName,
+        capturedImage
+      });
+      alert('Request successfully sent to record officer!');
+    } else {
+      alert('Please fill all required fields correctly');
+    }
   };
 
   const startCamera = async () => {
     try {
-      const mediaStream = await navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: 'user' } 
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { 
+          facingMode: 'user', // Front camera
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        } 
       });
-      setStream(mediaStream);
       if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream;
+        videoRef.current.srcObject = stream;
+        setIsCameraActive(true);
+        // Clear camera error when camera starts
+        if (errors.capturedImage) {
+          setErrors(prev => ({ ...prev, capturedImage: '' }));
+        }
       }
-      setShowCamera(true);
     } catch (err) {
       console.error('Error accessing camera:', err);
-      alert('Unable to access camera. Please check permissions.');
+      setErrors(prev => ({ 
+        ...prev, 
+        capturedImage: 'Unable to access camera. Please check camera permissions.' 
+      }));
+    }
+  };
+
+  const captureImage = () => {
+    if (videoRef.current && canvasRef.current) {
+      setIsCapturing(true);
+      
+      setTimeout(() => {
+        const video = videoRef.current;
+        const canvas = canvasRef.current;
+        const context = canvas.getContext('2d');
+        
+        // Set canvas dimensions to match video
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        
+        // Draw current video frame to canvas
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        
+        // Add flash effect
+        const flash = document.createElement('div');
+        flash.style.position = 'fixed';
+        flash.style.top = '0';
+        flash.style.left = '0';
+        flash.style.width = '100%';
+        flash.style.height = '100%';
+        flash.style.backgroundColor = 'white';
+        flash.style.opacity = '0.8';
+        flash.style.zIndex = '1000';
+        flash.style.transition = 'opacity 0.3s';
+        document.body.appendChild(flash);
+        
+        // Remove flash after animation
+        setTimeout(() => {
+          flash.style.opacity = '0';
+          setTimeout(() => {
+            document.body.removeChild(flash);
+            setIsCapturing(false);
+          }, 300);
+        }, 200);
+        
+        // Convert canvas to data URL
+        const imageDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+        setCapturedImage(imageDataUrl);
+        
+        // Stop camera
+        stopCamera();
+        
+        // Clear camera error after successful capture
+        if (errors.capturedImage) {
+          setErrors(prev => ({ ...prev, capturedImage: '' }));
+        }
+      }, 100);
     }
   };
 
   const stopCamera = () => {
-    if (stream) {
-      stream.getTracks().forEach(track => track.stop());
-      setStream(null);
-    }
-    setShowCamera(false);
-  };
-
-  const capturePhoto = () => {
-    if (videoRef.current && canvasRef.current) {
-      const context = canvasRef.current.getContext('2d');
-      canvasRef.current.width = videoRef.current.videoWidth;
-      canvasRef.current.height = videoRef.current.videoHeight;
-      context.drawImage(videoRef.current, 0, 0);
-      
-      const imageDataUrl = canvasRef.current.toDataURL('image/png');
-      setFormData(prev => ({
-        ...prev,
-        photo: imageDataUrl,
-        photoPreview: imageDataUrl
-      }));
-      
-      stopCamera();
+    if (videoRef.current && videoRef.current.srcObject) {
+      const stream = videoRef.current.srcObject;
+      const tracks = stream.getTracks();
+      tracks.forEach(track => track.stop());
+      videoRef.current.srcObject = null;
+      setIsCameraActive(false);
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const retakePhoto = () => {
+    setCapturedImage(null);
+    startCamera();
+  };
+
+  const handleFullNameChange = (e) => {
+    const value = e.target.value;
+    setFullName(value);
     
-    if (!formData.fullName.trim()) {
-      alert("Please enter full name");
-      return;
-    }
-
-    if (!formData.photo) {
-      alert("Please capture a photo");
-      return;
-    }
-
-    setIsSubmitting(true);
-    
-    // Simulate API call to record officer
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      console.log('Clearance request submitted:', {
-        fullName: formData.fullName,
-        photo: formData.photo ? 'Photo captured' : 'No photo'
-      });
-      
-      alert('Clearance request sent successfully to record officer!');
-      
-      // Reset form
-      setFormData({
-        fullName: "",
-        photo: null,
-        photoPreview: null
-      });
-      
-    } catch (error) {
-      console.error('Submission error:', error);
-      alert('Failed to send request. Please try again.');
-    } finally {
-      setIsSubmitting(false);
+    // Real-time validation for full name
+    if (value.trim() && errors.fullName) {
+      setErrors(prev => ({ ...prev, fullName: '' }));
     }
   };
 
-  const removePhoto = () => {
-    setFormData(prev => ({
-      ...prev,
-      photo: null,
-      photoPreview: null
-    }));
-  };
+  // Check if form is valid for button enabling
+  const isFormValid = fullName.trim().length >= 2 && capturedImage;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl overflow-hidden">
-        {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 p-6 text-white text-center">
-          <h1 className="text-2xl font-bold">Prepare Clearance</h1>
-          <p className="text-blue-100 mt-2">Submit clearance request to record officer</p>
+    <div className="prepare-clearance-form">
+      <form onSubmit={handleSubmit}>
+        {/* Input for fullname */}
+        <div className="input-group">
+          <label htmlFor="fullname">Full Name *</label>
+          <input
+            id="fullname"
+            type="text"
+            placeholder="Enter full name..."
+            value={fullName}
+            onChange={handleFullNameChange}
+            required
+            className={`input-field ${errors.fullName ? 'error' : ''}`}
+          />
+          {errors.fullName && <span className="error-message">{errors.fullName}</span>}
         </div>
 
-        {/* Form */}
-        <div className="p-6">
-          <form onSubmit={handleSubmit}>
-            {/* Full Name Input */}
-            <div className="mb-6">
-              <label className="block text-gray-700 text-sm font-medium mb-2" htmlFor="fullName">
-                Full Name *
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <FaUser className="text-gray-400" />
-                </div>
-                <input
-                  id="fullName"
-                  name="fullName"
-                  type="text"
-                  required
-                  value={formData.fullName}
-                  onChange={handleInputChange}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
-                  placeholder="Enter your full name"
+        {/* Camera section for capturing user photo */}
+        <div className="camera-section">
+          <label>Photo Capture *</label>
+          
+          {!capturedImage ? (
+            <div className="camera-container">
+              <div className="camera-frame">
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  className="camera-preview"
+                  style={{ display: isCameraActive ? 'block' : 'none' }}
                 />
-              </div>
-            </div>
-
-            {/* Photo Capture Section */}
-            <div className="mb-6">
-              <label className="block text-gray-700 text-sm font-medium mb-2">
-                Photo Capture *
-              </label>
-              
-              {/* Photo Preview */}
-              {formData.photoPreview ? (
-                <div className="mb-4 flex flex-col items-center">
-                  <div className="relative">
-                    <div className="w-32 h-32 rounded-lg overflow-hidden border-2 border-blue-200 shadow-md">
-                      <img 
-                        src={formData.photoPreview} 
-                        alt="Captured" 
-                        className="w-full h-full object-cover"
-                      />
+                {isCameraActive && (
+                  <div className="camera-overlay">
+                    <div className="capture-guide">
+                      <div className="face-outline"></div>
+                      <div className="instruction-text">
+                        Position your face within the frame
+                      </div>
                     </div>
-                    <button
-                      type="button"
-                      onClick={removePhoto}
-                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs shadow-md hover:bg-red-600 transition duration-200"
-                    >
-                      ×
-                    </button>
                   </div>
-                  <p className="text-green-600 text-sm mt-2">Photo captured ✓</p>
-                </div>
+                )}
+              </div>
+              
+              {!isCameraActive ? (
+                <button type="button" onClick={startCamera} className="camera-button">
+                  📷 Start Camera
+                </button>
               ) : (
-                <div className="flex flex-col items-center mb-4">
-                  <div className="w-32 h-32 rounded-lg bg-gray-200 flex items-center justify-center border-2 border-dashed border-gray-300">
-                    <FaCamera className="text-gray-400 text-2xl" />
-                  </div>
-                  <p className="text-gray-500 text-sm mt-2">No photo captured</p>
-                </div>
+                <button 
+                  type="button" 
+                  onClick={captureImage} 
+                  className="capture-button"
+                  disabled={isCapturing}
+                >
+                  {isCapturing ? '📸 Capturing...' : '📸 Capture Photo'}
+                </button>
               )}
-
-              {/* Camera Button */}
-              <button
-                type="button"
-                onClick={showCamera ? stopCamera : startCamera}
-                className={`w-full py-3 px-4 rounded-lg font-medium transition duration-200 flex items-center justify-center gap-2 ${
-                  showCamera 
-                    ? 'bg-red-100 hover:bg-red-200 text-red-700' 
-                    : 'bg-blue-100 hover:bg-blue-200 text-blue-700'
-                }`}
-              >
-                <FaCamera />
-                {showCamera ? 'Stop Camera' : 'Capture Photo'}
+            </div>
+          ) : (
+            <div className="captured-image-container">
+              <div className="success-badge">✅ Photo Captured</div>
+              <img src={capturedImage} alt="Captured" className="captured-image" />
+              <button type="button" onClick={retakePhoto} className="retake-button">
+                🔄 Retake Photo
               </button>
             </div>
-
-            {/* Camera View */}
-            {showCamera && (
-              <div className="mb-6 p-4 bg-gray-100 rounded-lg">
-                <div className="relative">
-                  <video 
-                    ref={videoRef} 
-                    autoPlay 
-                    playsInline
-                    className="w-full h-64 object-cover rounded-lg bg-black"
-                  ></video>
-                  <button
-                    type="button"
-                    onClick={capturePhoto}
-                    className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:bg-gray-100 transition duration-200"
-                  >
-                    <FaCamera className="text-gray-700 text-xl" />
-                  </button>
-                </div>
-                <p className="text-center text-gray-600 mt-2 text-sm">
-                  Position yourself and click the camera icon to capture
-                </p>
-                <canvas ref={canvasRef} className="hidden"></canvas>
-              </div>
-            )}
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={isSubmitting || !formData.fullName || !formData.photo}
-              className={`w-full py-3 px-4 rounded-lg font-medium text-white transition duration-200 flex items-center justify-center gap-2 ${
-                isSubmitting || !formData.fullName || !formData.photo
-                  ? 'bg-gray-400 cursor-not-allowed' 
-                  : 'bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 shadow-md hover:shadow-lg'
-              }`}
-            >
-              {isSubmitting ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  Sending Request...
-                </>
-              ) : (
-                <>
-                  <FaPaperPlane />
-                  Send to Record Officer
-                </>
-              )}
-            </button>
-          </form>
+          )}
+          
+          {errors.capturedImage && (
+            <span className="error-message">{errors.capturedImage}</span>
+          )}
+          
+          {/* Hidden canvas for capturing frames */}
+          <canvas ref={canvasRef} style={{ display: 'none' }} />
         </div>
 
-        {/* Footer */}
-        <div className="bg-gray-50 px-6 py-4 text-center text-gray-500 text-sm">
-          <p>Clearance request will be processed by record officer</p>
-        </div>
-      </div>
+        {/* Button to send request to record officer */}
+        <button 
+          type="submit" 
+          className={`submit-button ${!isFormValid ? 'disabled' : ''}`}
+          disabled={!isFormValid}
+        >
+          ✅ Send Request to Record Officer
+        </button>
+      </form>
+
+      <style jsx>{`
+        .prepare-clearance-form {
+          max-width: 500px;
+          margin: 0 auto;
+          padding: 20px;
+          font-family: Arial, sans-serif;
+        }
+        
+        .input-group {
+          margin-bottom: 25px;
+        }
+        
+        .input-group label {
+          display: block;
+          margin-bottom: 8px;
+          font-weight: bold;
+          color: #333;
+          font-size: 16px;
+        }
+        
+        .input-field {
+          width: 100%;
+          padding: 12px;
+          border: 2px solid #ddd;
+          border-radius: 8px;
+          font-size: 16px;
+          box-sizing: border-box;
+          transition: border-color 0.3s;
+        }
+        
+        .input-field.error {
+          border-color: #e74c3c;
+          box-shadow: 0 0 8px rgba(231, 76, 60, 0.2);
+        }
+        
+        .error-message {
+          color: #e74c3c;
+          font-size: 14px;
+          margin-top: 6px;
+          display: block;
+          font-weight: 500;
+        }
+        
+        .camera-section {
+          margin: 25px 0;
+        }
+        
+        .camera-section label {
+          display: block;
+          margin-bottom: 8px;
+          font-weight: bold;
+          color: #333;
+          font-size: 16px;
+        }
+        
+        .camera-container, .captured-image-container {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 15px;
+          margin-top: 15px;
+        }
+        
+        .camera-frame {
+          position: relative;
+          width: 100%;
+          max-width: 400px;
+          height: 300px;
+          border: 3px solid #3498db;
+          border-radius: 12px;
+          overflow: hidden;
+          background: #f8f9fa;
+        }
+        
+        .camera-preview {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+        
+        .camera-overlay {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          pointer-events: none;
+        }
+        
+        .capture-guide {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          text-align: center;
+        }
+        
+        .face-outline {
+          width: 200px;
+          height: 250px;
+          border: 3px dashed #3498db;
+          border-radius: 45% 45% 50% 50%;
+          margin: 0 auto 15px;
+          background: rgba(52, 152, 219, 0.1);
+        }
+        
+        .instruction-text {
+          color: white;
+          font-weight: bold;
+          text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+          font-size: 14px;
+          background: rgba(0,0,0,0.6);
+          padding: 8px 12px;
+          border-radius: 20px;
+        }
+        
+        .captured-image {
+          width: 100%;
+          max-width: 400px;
+          height: 300px;
+          border: 3px solid #27ae60;
+          border-radius: 12px;
+          object-fit: cover;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .success-badge {
+          background: #27ae60;
+          color: white;
+          padding: 8px 16px;
+          border-radius: 20px;
+          font-weight: bold;
+          font-size: 14px;
+        }
+        
+        .camera-button, .capture-button, .retake-button {
+          padding: 12px 24px;
+          border: none;
+          border-radius: 25px;
+          cursor: pointer;
+          font-size: 16px;
+          font-weight: bold;
+          transition: all 0.3s;
+          min-width: 180px;
+        }
+        
+        .camera-button, .capture-button {
+          background: linear-gradient(135deg, #3498db, #2980b9);
+          color: white;
+          box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+        }
+        
+        .capture-button:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+        
+        .retake-button {
+          background: linear-gradient(135deg, #e67e22, #d35400);
+          color: white;
+          box-shadow: 0 4px 8px rgba(230, 126, 34, 0.3);
+        }
+        
+        .submit-button {
+          background: linear-gradient(135deg, #27ae60, #229954);
+          color: white;
+          width: 100%;
+          margin-top: 25px;
+          padding: 15px;
+          font-size: 18px;
+          border: none;
+          border-radius: 12px;
+          cursor: pointer;
+          transition: all 0.3s;
+          font-weight: bold;
+          box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+        }
+        
+        .submit-button.disabled {
+          background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+          cursor: not-allowed;
+          box-shadow: none;
+        }
+        
+        .submit-button:not(.disabled):hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 16px rgba(39, 174, 96, 0.4);
+        }
+        
+        button:not(:disabled):hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+        
+        .input-field:focus {
+          outline: none;
+          border-color: #3498db;
+          box-shadow: 0 0 8px rgba(52, 152, 219, 0.3);
+        }
+        
+        .input-field.error:focus {
+          border-color: #e74c3c;
+          box-shadow: 0 0 8px rgba(231, 76, 60, 0.3);
+        }
+      `}</style>
     </div>
   );
 };

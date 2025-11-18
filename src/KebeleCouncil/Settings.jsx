@@ -167,13 +167,10 @@ const Settings = () => {
         <div className="lg:w-64 theme-card p-4 theme-border">
           <nav className="space-y-2">
             {[
-              { id: "profile", label: `👤 ${t.profileSettings}`, icon: "👤" },
-              { id: "preferences", label: `⚙️ ${t.systemPreferences}`, icon: "⚙️" },
-              { id: "appearance", label: `🎨 ${t.appearanceTheme}`, icon: "🎨" },
-              { id: "backups", label: `💾 ${t.themeBackups}`, icon: "💾" },
-              { id: "notifications", label: `🔔 ${t.notifications}`, icon: "🔔" },
-              { id: "security", label: `🔐 ${t.security}`, icon: "🔐" },
-              { id: "team", label: `👥 ${t.teamManagement}`, icon: "👥" }
+              { id: "profile", label: `👤 ${t.profileSettings}`, icon: "" },
+              { id: "preferences", label: `⚙️ ${t.systemPreferences}`, icon: "" },
+              { id: "appearance", label: `🎨 ${t.appearanceTheme}`, icon: "" },
+              { id: "security", label: `🔐 ${t.security}`, icon: "" },
             ].map((item) => (
               <button
                 key={item.id}
